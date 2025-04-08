@@ -9,6 +9,12 @@
 --- VERSION: 1.0.0
 --- DEPENDENCIES: [Steamodded>=1.0.0~ALPHA-1406b]
 
+SMODS.Atlas{
+    key = 'placeholder',
+    path = 'placeholder',
+    X = 71,
+    Y = 95
+}
 
 SMODS.Atlas {
     key = 'openwater',
@@ -505,13 +511,6 @@ SMODS.Joker{
 end
 }
 
-SMODS.Atlas{
-    key = 'placeholder',
-    path = 'placeholder',
-    X = 71,
-    Y = 95
-}
-
 SMODS.Joker{
     key = 'oddments',
     loc_txt = {
@@ -535,5 +534,5 @@ SMODS.Joker{
 
     loc_vars = function(self,info_queue,card)
         return {vars = {card.ability.extra.chips}}
-    end,
+    end
 }

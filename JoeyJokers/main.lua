@@ -504,3 +504,36 @@ SMODS.Joker{
     end
 end
 }
+
+SMODS.Atlas{
+    key = 'placeholder',
+    path = 'placeholder',
+    X = 71,
+    Y = 95
+}
+
+SMODS.Joker{
+    key = 'oddments',
+    loc_txt = {
+        name = 'Oddments',
+        text = {
+            'This joker gains {C:chips}+1',
+            'chip per unique rank',
+            'in scoring hand',
+            '{C:inactive}currently {C:chips}+#1#{C:inactive} chips'
+        }
+    },
+    atlas = 'placeholder',
+    pos = {x = 0, y = 0},
+    rarity = 1,
+    cost = 4,
+    blueprint = true,
+    config = {extra = {
+        chips = 0
+        }
+    },
+
+    loc_vars = function(self,info_queue,card)
+        return {vars = {card.ability.extra.chips}}
+    end,
+}

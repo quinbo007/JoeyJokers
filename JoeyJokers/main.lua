@@ -9,16 +9,9 @@
 --- VERSION: 1.0.0
 --- DEPENDENCIES: [Steamodded>=1.0.0~ALPHA-1406b]
 
-SMODS.Atlas{
-    key = 'placeholder',
-    path = 'placeholder',
-    X = 71,
-    Y = 95
-}
-
 SMODS.Atlas {
-    key = 'openwater',
-    path = 'openwater.png',
+    key = "Jokers",
+    path = "Jokers.png",
     px = 71,
     py = 95
 }
@@ -32,8 +25,8 @@ SMODS.Joker {
             '{X:mult,C:white}X#2#{} mult'
         }
     },
-    atlas = 'openwater',
-    pos = {x = 0, y = 0},
+    atlas = 'Jokers',
+    pos = {x = 4, y = 0},
     rarity = 2,
     cost = 5,
     config = { extra = {
@@ -55,13 +48,6 @@ SMODS.Joker {
     end
 }
 
-SMODS.Atlas {
-    key = 'feltmansion',
-    path = 'feltmansion.png',
-    px = 71,
-    py = 95
-}
-
 SMODS.Joker {
     key = 'feltmansion',
     loc_txt = {
@@ -73,8 +59,8 @@ SMODS.Joker {
             '{C:inactive}(Currently {C:mult}+#4#{C:inactive} mult)'
         }
     },
-    atlas = 'feltmansion',
-    pos = {x = 0, y = 0},
+    atlas = 'Jokers',
+    pos = {x = 2, y = 0},
     rarity = 3,
     cost = 7,
     blueprint_compat = true,
@@ -123,13 +109,6 @@ SMODS.Joker {
     end
 }
 
-SMODS.Atlas {
-    key = 'braintelephone',
-    path = 'braintelephone.png',
-    px = 71,
-    py = 95
-}
-
 SMODS.Joker {
     key = 'braintelephone',
     loc_txt = {
@@ -142,7 +121,7 @@ SMODS.Joker {
             '{C:inactive}(ranks reset each round)'
         }
     },
-    atlas = 'braintelephone',
+    atlas = 'Jokers',
     pos = {x = 0, y = 0},
     rarity = 2,
     cost = 6,
@@ -160,7 +139,7 @@ SMODS.Joker {
     loc_vars = function(self,info_queue,card)
         local vars
         if card.ability.extra.combination == '' then
-            vars = {'gain this to reveal'}
+            vars = {'? ? ? ? ? ? ?'}
         else
             vars = {card.ability.extra.combination}
         end
@@ -305,13 +284,6 @@ SMODS.Joker {
 	end
 }
 
-SMODS.Atlas {
-    key = 'brimstone',
-    path = 'brimstone.png',
-    px = 71,
-    py = 95
-}
-
 SMODS.Joker{
     key = 'brimstone',
     loc_txt = {
@@ -323,8 +295,8 @@ SMODS.Joker{
             'and {C:attention}-#3#{} trigger per discard'
         }
     },
-    atlas = 'brimstone',
-    pos = {x = 0, y = 0},
+    atlas = 'Jokers',
+    pos = {x = 1, y = 0},
     rarity = 3,
     cost = 8,
     blueprint = true,
@@ -378,13 +350,6 @@ SMODS.Joker{
     end
 }
 
-SMODS.Atlas {
-    key = 'techx',
-    path = 'techx.png',
-    px = 71,
-    py = 95
-}
-
 SMODS.Joker{
     key = 'techx',
     loc_txt = {
@@ -396,8 +361,8 @@ SMODS.Joker{
             '{C:inactive}(currently {C:attention}#2#{C:inactive}/{C:attention}#1#{C:inactive})'
         }
     },
-    atlas = 'techx',
-    pos = {x = 0, y = 0},
+    atlas = 'Jokers',
+    pos = {x = 5, y = 0},
     rarity = 2,
     cost = 5,
     blueprint = true,
@@ -437,13 +402,6 @@ SMODS.Joker{
     end
 }
 
-SMODS.Atlas {
-    key = 'tetrachromancy',
-    path = 'tetrachromancy.png',
-    px = 71,
-    py = 95
-}
-
 SMODS.Joker{
     key = 'tetrachromancy',
     loc_txt = {
@@ -455,9 +413,9 @@ SMODS.Joker{
             '{C:inactive}(must have room)'
         }
     },
-    atlas = 'tetrachromancy',
-    pos = {x = 0, y = 0},
-    soul_pos = {x = 1, y = 0},
+    atlas = 'Jokers',
+    pos = {x = 6, y = 0},
+    soul_pos = {x = 7, y = 0},
     rarity = 2,
     cost = 6,
     blueprint = true,
@@ -516,23 +474,53 @@ SMODS.Joker{
     loc_txt = {
         name = 'Oddments',
         text = {
-            'This joker gains {C:chips}+1',
-            'chip per unique rank',
-            'in scoring hand',
-            '{C:inactive}currently {C:chips}+#1#{C:inactive} chips'
+            'This joker gains {C:chips}+#2#{} chips',
+            'per unique scoring {C:attention}rank',
+            'in first hand of round',
+            '{C:inactive}(currently {C:chips}+#1#{C:inactive} chips)'
         }
     },
-    atlas = 'placeholder',
-    pos = {x = 0, y = 0},
+    atlas = 'Jokers',
+    pos = {x = 3, y = 0},
     rarity = 1,
     cost = 4,
     blueprint = true,
     config = {extra = {
-        chips = 0
+        chips = 0,
+        bonuschips = 2
         }
     },
 
     loc_vars = function(self,info_queue,card)
-        return {vars = {card.ability.extra.chips}}
+        return {vars = {card.ability.extra.chips, card.ability.extra.bonuschips}}
+    end,
+
+    calculate = function(self, card, context)
+        if context.before and G.GAME.current_round.hands_played == 0 and context.cardarea==G.jokers and not context.blueprint then
+            local ranks = {0}
+            for i,v in ipairs(context.scoring_hand) do 
+                local current_rank = v.base.id
+                for h,k in ipairs(ranks) do
+                    if ranks[h] == current_rank then break
+                    elseif ranks[h] == 0 then 
+                        table.insert(ranks, current_rank)
+                        table.remove(ranks, h)
+                        table.insert(ranks, 0)
+                        break
+                    end
+                end
+            end
+            table.remove(ranks, (#ranks))
+            card.ability.extra.chips = card.ability.extra.chips + (#ranks * card.ability.extra.bonuschips)
+            return {
+                message = '+'..(#ranks * card.ability.extra.bonuschips),
+                colour = G.C.CHIPS
+            }
+        end
+        if context.joker_main then
+            return {
+                chips = card.ability.extra.chips
+            }
+        end
     end
 }

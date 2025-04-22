@@ -240,8 +240,9 @@ SMODS.Joker {
         end
         if context.discard then
             -- clears card_list and creates a spectral if the last value is removed
-            if #card.ability.extra.ranks <= 1 then
+            if #card.ability.extra.ranks == 1 and context.other_card:get_id() == card.ability.extra.ranks[#card.ability.extra.ranks] then
                 card.ability.extra.card_list  = {}
+                card.ability.extra.ranks = {}
                 card.ability.extra.combination = 'Called!'
                 if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
                     G.E_MANAGER:add_event(Event({
@@ -475,8 +476,8 @@ SMODS.Joker{
         name = 'Oddments',
         text = {
             'This joker gains {C:chips}+#2#{} chips',
-            'per unique scoring {C:attention}rank',
-            'in first hand of round',
+            'per unique scoring {C:attention}rank{}',
+            'played each round',
             '{C:inactive}(currently {C:chips}+#1#{C:inactive} chips)'
         }
     },
@@ -487,40 +488,38 @@ SMODS.Joker{
     blueprint = true,
     config = {extra = {
         chips = 0,
-        bonuschips = 2
+        bonuschips = 2,
+        ranks = {0}
         }
     },
 
     loc_vars = function(self,info_queue,card)
-        return {vars = {card.ability.extra.chips, card.ability.extra.bonuschips}}
+        return {vars = {card.ability.extra.chips, card.ability.extra.bonuschips, card.ability.extra.ranks}}
     end,
 
     calculate = function(self, card, context)
-        if context.before and G.GAME.current_round.hands_played == 0 and context.cardarea==G.jokers and not context.blueprint then
-            local ranks = {0}
+        if context.before and context.cardarea==G.jokers and not context.blueprint then
             for i,v in ipairs(context.scoring_hand) do 
                 local current_rank = v.base.id
-                for h,k in ipairs(ranks) do
-                    if ranks[h] == current_rank then break
-                    elseif ranks[h] == 0 then 
-                        table.insert(ranks, current_rank)
-                        table.remove(ranks, h)
-                        table.insert(ranks, 0)
+                for h,k in ipairs(card.ability.extra.ranks) do
+                    if card.ability.extra.ranks[h] == current_rank then break
+                    elseif card.ability.extra.ranks[h] == 0 then 
+                        table.insert(card.ability.extra.ranks, current_rank)
+                        table.remove(card.ability.extra.ranks, h)
+                        table.insert(card.ability.extra.ranks, 0)
+                        card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.bonuschips
                         break
                     end
                 end
             end
-            table.remove(ranks, (#ranks))
-            card.ability.extra.chips = card.ability.extra.chips + (#ranks * card.ability.extra.bonuschips)
-            return {
-                message = '+'..(#ranks * card.ability.extra.bonuschips),
-                colour = G.C.CHIPS
-            }
         end
         if context.joker_main then
             return {
                 chips = card.ability.extra.chips
             }
+        end
+        if context.end_of_round then
+            card.ability.extra.ranks = {0}
         end
     end
 }

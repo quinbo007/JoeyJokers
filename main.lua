@@ -523,3 +523,60 @@ SMODS.Joker{
         end
     end
 }
+
+SMODS.Joker{
+    key = 'kinggila',
+    loc_txt = {
+        name = 'Flamethrower',
+        text = {
+            'Create up to 2 {C:planet}Planet',
+            '{C:planet}Cards{} if score',
+            'is {C:attention}on fire',
+            '{C:inactive}(must have room)'
+        }
+    },
+    atlas = 'Jokers',
+    pos = {x = 9, y = 0},
+    soul_pos = {x = 0, y = 1},
+    rarity = 1,
+    cost = 6,
+    blueprint = true,
+
+    calculate = function(self, card, context)
+        if context.joker_main and hand_chips * mult >= G.GAME.blind.chips then
+            if G.consumeables.config.card_limit - #G.consumeables.cards - G.GAME.consumeable_buffer >= 2 then
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        local card = create_card('Planet',G.consumeables, nil, nil, nil, nil, nil, 'king')
+                        card:add_to_deck()
+                        G.consumeables:emplace(card)
+                        return true
+                    end
+                }))
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        local card = create_card('Planet',G.consumeables, nil, nil, nil, nil, nil, 'gila')
+                        card:add_to_deck()
+                        G.consumeables:emplace(card)
+                        return true
+                    end
+                }))
+                return {
+                    message = 'Scorched!'
+                }
+            elseif G.consumeables.config.card_limit - #G.consumeables.cards - G.GAME.consumeable_buffer == 1 then
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        local card = create_card('Planet',G.consumeables, nil, nil, nil, nil, nil, 'king')
+                        card:add_to_deck()
+                        G.consumeables:emplace(card)
+                        return true
+                    end
+                }))
+                return {
+                    message = 'Scorched!'
+                }
+            end
+        end
+    end
+}

@@ -434,7 +434,7 @@ SMODS.Joker{
             ['4'] = 0
         }
         for i, v in ipairs(context.scoring_hand) do
-            if context.scoring_hand[i].ability.name ~= 'Wild Card' then
+            if context.scoring_hand[i].ability.name ~= 'Wild Card' and context.scoring_hand[i].ability.name ~= 'Stone Card' then
                 if suits['1'] == v.base.suit then break
                 elseif suits['1'] == 0 then suits['1'] = v.base.suit
                 elseif suits['2'] == v.base.suit then break
@@ -503,7 +503,7 @@ SMODS.Joker{
                 local current_rank = v.base.id
                 for h,k in ipairs(card.ability.extra.ranks) do
                     if card.ability.extra.ranks[h] == current_rank then break
-                    elseif card.ability.extra.ranks[h] == 0 then 
+                    elseif card.ability.extra.ranks[h] == 0 and context.scoring_hand[i].ability.name ~= 'Stone Card' then 
                         table.insert(card.ability.extra.ranks, current_rank)
                         table.remove(card.ability.extra.ranks, h)
                         table.insert(card.ability.extra.ranks, 0)
@@ -531,7 +531,7 @@ SMODS.Joker{
         text = {
             'Create up to 2 {C:planet}Planet',
             '{C:planet}Cards{} if score',
-            'is {C:attention}on fire',
+            'is currently {C:attention}on fire',
             '{C:inactive}(must have room)'
         }
     },
@@ -656,7 +656,7 @@ SMODS.Joker{
     cost = 5,
     blueprint = true,
     config = {extra = {
-        req = 7,
+        req = 5,
         status = ''
         }
     },
@@ -719,6 +719,58 @@ SMODS.Joker{
                       return true
                     end
                   }))
+            end
+        end
+    end
+}
+
+SMODS.Joker{
+    key = 'icev',
+    loc_txt = {
+        name = 'Ice V',
+        text = {
+            'Create an {C:attention}Economy Tag',
+            'played hand contains a {C:attention}Lucky 7',
+            'and an {C:attention}Ace of Spades'
+        }
+    },
+    atlas = 'Jokers',
+    pos = {x = 2, y = 1},
+    rarity = 3,
+    cost = 8,
+    blueprint = false,
+
+    loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue + 1] = G.P_TAGS.tag_economy
+        info_queue[#info_queue + 1] = G.P_CENTERS.m_lucky
+    end,
+    
+    calculate = function(self,card,context)
+        if context.joker_main then
+            local sevencheck = false
+            -- lucky 7
+            for i, v in ipairs(context.full_hand) do
+                if v.base.id == 7 and context.full_hand[i].ability.name == 'Lucky Card' then
+                    sevencheck = true
+                    break
+                end
+            end
+            local acecheck = false
+            for i, v in ipairs(context.full_hand) do
+                if v.base.id == 14 and v.base.suit == 'Spades' then
+                    acecheck = true
+                    break
+                end
+            end
+            if sevencheck and acecheck then 
+                G.E_MANAGER:add_event(Event({
+                    func = (function()
+                        add_tag(Tag('tag_economy'))
+                        play_sound('generic1', 0.9 + math.random()*0.1, 0.8)
+                        play_sound('holo1', 1.2 + math.random()*0.1, 0.4)
+                        return true
+                    end)
+                }))
             end
         end
     end

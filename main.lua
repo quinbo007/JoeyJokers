@@ -364,7 +364,7 @@ SMODS.Joker{
     },
     atlas = 'Jokers',
     pos = {x = 5, y = 0},
-    rarity = 2,
+    rarity = 1,
     cost = 5,
     blueprint = true,
     eternal = false,
@@ -576,6 +576,149 @@ SMODS.Joker{
                 return {
                     message = 'Scorched!'
                 }
+            end
+        end
+    end
+}
+
+SMODS.Joker{
+    key = 'mmfood',
+    loc_txt = {
+        name = 'MM..FOOD',
+        text = {
+            'Copies the ability',
+            'of {C:attention}food Jokers'
+        }
+    },
+    atlas = 'Jokers',
+    pos = {x = 8, y = 0},
+    rarity = 2,
+    cost = 5,
+    blueprint = true,
+    config = {extra = {
+        food = {
+            'Loyalty Card',
+            'Gros Michel',
+            'Ice Cream',
+            'Egg',
+            'Cavendish',
+            'Turtle Bean',
+            'Diet Cola',
+            'Popcorn',
+            'Ramen',
+            'Vegemite'
+        }
+        }
+    },
+
+    loc_vars = function(self,info_queue,card)
+        return {vars = {card.ability.extra.food}}
+    end,
+
+    calculate = function(self,card,context)
+        if context.joker_main then 
+            for i = 1, #G.jokers.cards do 
+                for h, k in ipairs(card.ability.extra.food) do
+                    if  G.jokers.cards[i].ability.name == card.ability.extra.food[h] then
+                        local ret = SMODS.blueprint_effect(card, G.jokers.cards[i], context)
+                        if ret then SMODS.calculate_effect(ret,card) end
+                    end
+                end
+            end
+        end
+        if context.repetition and context.cardarea == G.play and context.scoring_hand then
+            for i = 1, #G.jokers.cards do 
+                if G.jokers.cards[i].ability.name == 'Seltzer' then
+                    return {
+                        message = localize('k_again_ex'),
+                        repetitions = 1,
+                        card = card
+                    }
+                end
+            end
+        end
+    end
+}
+
+SMODS.Joker{
+    key = 'robotstop',
+    loc_txt = {
+        name = 'Robot Stop',
+        text = {
+            '{C:attention}Retrigger{} each played card',
+            'if number of cards {C:attention}in full deck',
+            'is a multiple of #1#{C:inactive}#2#'
+        }
+    },
+    atlas = 'Jokers',
+    pos = {x = 1, y = 1},
+    rarity = 2,
+    cost = 5,
+    blueprint = true,
+    config = {extra = {
+        req = 7,
+        status = ''
+        }
+    },
+
+    loc_vars = function(self,info_queue,card)
+        return {vars = {card.ability.extra.req, card.ability.extra.status}}
+    end,
+
+    add_to_deck = function(self,card)
+        if #G.playing_cards / card.ability.extra.req == math.ceil(#G.playing_cards / card.ability.extra.req) then
+            card.ability.extra.status = ' (active!)'
+        else
+            card.ability.extra.status = ' (inactive)'
+        end
+    end,
+
+    calculate = function(self,card,context)
+        if #G.playing_cards / card.ability.extra.req == math.ceil(#G.playing_cards / card.ability.extra.req) and context.repetition and context.cardarea == G.play and context.scoring_hand then
+            return {
+                message = localize('k_again_ex'),
+                repetitions = 1,
+                card = card
+            }
+        end
+        if context.playing_card_added then
+            if ( #G.playing_cards / card.ability.extra.req) == math.ceil( #G.playing_cards / card.ability.extra.req) then
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        card.ability.extra.status = ' (active!)'
+                      return true
+                    end
+                  }))
+                SMODS.calculate_effect({
+                    message = 'Active!'
+                },card)
+            else
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        card.ability.extra.status = ' (inactive)'
+                      return true
+                    end
+                  }))
+            end
+        end
+        if context.remove_playing_cards or context.cards_destroyed then
+            if ((#G.playing_cards - #context.removed) / card.ability.extra.req) == math.ceil( (#G.playing_cards - #context.removed) / card.ability.extra.req) then
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        card.ability.extra.status = ' (active!)'
+                      return true
+                    end
+                  }))
+                SMODS.calculate_effect({
+                    message = 'Active!'
+                },card)
+            else
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        card.ability.extra.status = ' (inactive)'
+                      return true
+                    end
+                  }))
             end
         end
     end

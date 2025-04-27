@@ -647,7 +647,7 @@ SMODS.Joker{
         text = {
             '{C:attention}Retrigger{} each played card',
             'if number of cards {C:attention}in full deck',
-            'is a multiple of #1#{C:inactive}#2#'
+            'is a multiple of {C:attention}#1#{C:inactive}#2#'
         }
     },
     atlas = 'Jokers',
@@ -656,7 +656,7 @@ SMODS.Joker{
     cost = 5,
     blueprint = true,
     config = {extra = {
-        req = 5,
+        req = 7,
         status = ''
         }
     },
@@ -729,7 +729,7 @@ SMODS.Joker{
     loc_txt = {
         name = 'Ice V',
         text = {
-            'Create an {C:attention}Economy Tag',
+            'Create an {C:attention}Economy Tag {}if',
             'played hand contains a {C:attention}Lucky 7',
             'and an {C:attention}Ace of Spades'
         }

@@ -21,8 +21,8 @@ SMODS.Joker {
     loc_txt = {
         name = 'Open Water',
         text = {
-            '{X:chips,C:white}1/#1#{} chips,',
-            '{X:mult,C:white}X#2#{} mult'
+            '{X:chips,C:white}1/#1#{} Chips,',
+            '{X:mult,C:white}X#2#{} Mult'
         }
     },
     atlas = 'Jokers',
@@ -53,10 +53,10 @@ SMODS.Joker {
     loc_txt = {
         name = 'Felt Mansion',
         text = {
-            'This joker gains {C:mult}+#1#{} mult',
+            'This joker gains {C:mult}+#1#{} Mult',
             'for every {C:attention}#2# {C:inactive}[#3#]{C:attention} Aces',
             'discarded each round',
-            '{C:inactive}(Currently {C:mult}+#4#{C:inactive} mult)'
+            '{C:inactive}(Currently {C:mult}+#4#{C:inactive} Mult)'
         }
     },
     atlas = 'Jokers',
@@ -114,10 +114,10 @@ SMODS.Joker {
     loc_txt = {
         name = 'Brain Telephone',
         text = {
-            'After 7 {C:attention}digits',
+            'After 7 {C:attention}Digits',
             '{C:inactive}[#1#]',
             'have been discarded,',
-            'create a {C:spectral}Spectral{} card',
+            'create a {C:spectral}Spectral Card',
             '{C:inactive}(ranks reset each round)'
         }
     },
@@ -292,7 +292,7 @@ SMODS.Joker{
         text = {
             'Retrigger {C:attention}last played',
             'card {C:attention}#1#{} #4#. This joker gains',
-            '{C:attention}+#2#{} trigger per unused discard',
+            '{C:attention}+#2#{} Trigger per unused discard',
             'and {C:attention}-#3#{} trigger per discard'
         }
     },
@@ -356,7 +356,7 @@ SMODS.Joker{
     loc_txt = {
         name = 'Tech X',
         text = {
-            'After {C:attention}#1#{} rounds,',
+            'After {C:attention}#1#{} Rounds,',
             'sell this to',
             '{C:attention}win the Blind',
             '{C:inactive}(currently {C:attention}#2#{C:inactive}/{C:attention}#1#{C:inactive})'
@@ -369,7 +369,7 @@ SMODS.Joker{
     blueprint = true,
     eternal = false,
     config = { extra = {
-        rounds = 3,
+        rounds = 4,
         remaining = 0
         }
     },
@@ -475,10 +475,10 @@ SMODS.Joker{
     loc_txt = {
         name = 'Oddments',
         text = {
-            'This joker gains {C:chips}+#2#{} chips',
-            'per unique scoring {C:attention}rank{}',
+            'This joker gains {C:chips}+#2#{} Chips',
+            'per unique scoring {C:attention}Rank{}',
             'played each round',
-            '{C:inactive}(currently {C:chips}+#1#{C:inactive} chips)'
+            '{C:inactive}(currently {C:chips}+#1#{C:inactive} Chips)'
         }
     },
     atlas = 'Jokers',
@@ -587,7 +587,7 @@ SMODS.Joker{
         name = 'MM..FOOD',
         text = {
             'Copies the ability',
-            'of {C:attention}food Jokers'
+            'of {C:attention}Food Jokers'
         }
     },
     atlas = 'Jokers',
@@ -738,7 +738,7 @@ SMODS.Joker{
     pos = {x = 2, y = 1},
     rarity = 3,
     cost = 8,
-    blueprint = false,
+    blueprint = true,
 
     loc_vars = function(self,info_queue,card)
         info_queue[#info_queue + 1] = G.P_TAGS.tag_economy
@@ -773,5 +773,52 @@ SMODS.Joker{
                 }))
             end
         end
+    end
+}
+
+SMODS.Joker{
+    key = 'draculadrug',
+    loc_txt = {
+        name = 'Dracula Drug',
+        text = {
+            '{C:attention}Removes Enhancements {}from each',
+            'played card in scoring hand,',
+            '{X:mult,C:white}X#1#{} Mult per Enhancement removed',
+            '{C:inactive}(resets each hand)'
+        }
+    },
+    atlas = 'Jokers',
+    pos = {x = 3, y = 1},
+    rarity = 1,
+    config = {extra = {
+        bonus = 0.5,
+        mult = 1
+    }},
+    cost = 5,
+    blueprint = true,
+
+    loc_vars = function(self,info_queue,card)
+        return {vars = {card.ability.extra.bonus, card.ability.extra.mult}}
+    end,
+    
+    calculate = function(self,card,context)
+        if context.before and not context.blueprint then 
+            card.ability.extra.mult = 1
+            for h, k in ipairs(context.scoring_hand) do
+                if k.config.center ~= G.P_CENTERS.c_base and not k.debuff and not k.vampired then 
+                    card.ability.extra.mult = card.ability.extra.mult + card.ability.extra.bonus
+                    k.vampired = true
+                    k:set_ability(G.P_CENTERS.c_base, nil, true)
+                    G.E_MANAGER:add_event(Event({
+                        func = function()
+                            k:juice_up()
+                            k.vampired = nil
+                            return true
+                        end
+                    })) 
+                end
+            end
+        end
+        if context.joker_main then return { x_mult = card.ability.extra.mult } end
     end
 }

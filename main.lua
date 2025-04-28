@@ -822,3 +822,78 @@ SMODS.Joker{
         if context.joker_main then return { x_mult = card.ability.extra.mult } end
     end
 }
+
+SMODS.Joker{
+    key = 'avoidaroid',
+    loc_txt = {
+        name = 'Avoid-a-Roid',
+        text = {
+            '{X:mult,C:white}X#1#{} Mult if played',
+            'hand contains a',
+            '{C:attention}Straight {}with #4# {C:attention}#2#',
+            '{C:inactive}(rank changes every round)'
+
+        }
+    },
+    atlas = 'Jokers',
+    pos = {x = 4, y = 1},
+    rarity = 2,
+    config = {extra = {
+        mult = 3
+    }},
+    cost = 6,
+    blueprint = true,
+
+    loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue + 1] = {key = 'joey_credit_conboi', set = 'Other'}
+        return {vars = {card.ability.extra.mult, G.GAME.current_round.roid_card.name, G.GAME.current_round.roid_card.rank, G.GAME.current_round.roid_card.letter}}
+    end,
+    
+    calculate = function(self,card,context)
+        if context.joker_main and next(context.poker_hands['Straight']) then 
+            local roidcheck = false
+            for i,v in ipairs(context.scoring_hand) do 
+                if v.base.id == G.GAME.current_round.roid_card.rank then
+                    roidcheck = true
+                end
+            end
+            if roidcheck then return {
+                x_mult = card.ability.extra.mult
+            }
+            end
+        end
+    end
+}
+
+local igo = Game.init_game_object
+function Game:init_game_object()
+	local ret = igo(self)
+	ret.current_round.roid_card = {rank = 7, name = 7, letter = 'a'}
+	return ret
+end
+
+-- this is unoptimized to shit lmao
+function SMODS.current_mod.reset_game_globals(run_start)
+    G.GAME.current_round.roid_card.rank = 7
+    local roidranks = {}
+    for _, v in ipairs(G.playing_cards) do
+        if not SMODS.has_no_rank(v) then roidranks[#roidranks + 1] = v end
+    end
+    if roidranks[1] then 
+        local roidcard = pseudorandom_element(roidranks, pseudoseed('roid'..G.GAME.round_resets.ante))
+        G.GAME.current_round.roid_card.rank = roidcard.base.id
+        if G.GAME.current_round.roid_card.rank == 14 then G.GAME.current_round.roid_card.name = 'Ace'
+            G.GAME.current_round.roid_card.letter = 'an'
+        elseif G.GAME.current_round.roid_card.rank == 13 then G.GAME.current_round.roid_card.name = 'King'
+            G.GAME.current_round.roid_card.letter = 'a'
+        elseif G.GAME.current_round.roid_card.rank == 12 then G.GAME.current_round.roid_card.name = 'Queen'
+            G.GAME.current_round.roid_card.letter = 'a'
+        elseif G.GAME.current_round.roid_card.rank == 11 then G.GAME.current_round.roid_card.name = 'Jack'
+            G.GAME.current_round.roid_card.letter = 'a'
+        elseif G.GAME.current_round.roid_card.rank == 8 then G.GAME.current_round.roid_card.name = '8'
+            G.GAME.current_round.roid_card.letter = 'an'
+        else G.GAME.current_round.roid_card.name = G.GAME.current_round.roid_card.rank
+            G.GAME.current_round.roid_card.letter = 'a'
+        end
+    end
+end

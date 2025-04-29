@@ -18,13 +18,6 @@ SMODS.Atlas {
 
 SMODS.Joker {
     key = 'openwater',
-    loc_txt = {
-        name = 'Open Water',
-        text = {
-            '{X:chips,C:white}1/#1#{} Chips,',
-            '{X:mult,C:white}X#2#{} Mult'
-        }
-    },
     atlas = 'Jokers',
     pos = {x = 4, y = 0},
     rarity = 2,
@@ -50,15 +43,6 @@ SMODS.Joker {
 
 SMODS.Joker {
     key = 'feltmansion',
-    loc_txt = {
-        name = 'Felt Mansion',
-        text = {
-            'This joker gains {C:mult}+#1#{} Mult',
-            'for every {C:attention}#2# {C:inactive}[#3#]{C:attention} Aces',
-            'discarded each round',
-            '{C:inactive}(Currently {C:mult}+#4#{C:inactive} Mult)'
-        }
-    },
     atlas = 'Jokers',
     pos = {x = 2, y = 0},
     rarity = 3,
@@ -111,16 +95,6 @@ SMODS.Joker {
 
 SMODS.Joker {
     key = 'braintelephone',
-    loc_txt = {
-        name = 'Brain Telephone',
-        text = {
-            'After 7 {C:attention}Digits',
-            '{C:inactive}[#1#]',
-            'have been discarded,',
-            'create a {C:spectral}Spectral Card',
-            '{C:inactive}(ranks reset each round)'
-        }
-    },
     atlas = 'Jokers',
     pos = {x = 0, y = 0},
     rarity = 2,
@@ -287,15 +261,6 @@ SMODS.Joker {
 
 SMODS.Joker{
     key = 'brimstone',
-    loc_txt = {
-        name = 'Brimstone',
-        text = {
-            'Retrigger {C:attention}last played',
-            'card {C:attention}#1#{} #4#. This joker gains',
-            '{C:attention}+#2#{} Trigger per unused discard',
-            'and {C:attention}-#3#{} trigger per discard'
-        }
-    },
     atlas = 'Jokers',
     pos = {x = 1, y = 0},
     rarity = 3,
@@ -352,16 +317,7 @@ SMODS.Joker{
 }
 
 SMODS.Joker{
-    key = 'techx',
-    loc_txt = {
-        name = 'Tech X',
-        text = {
-            'After {C:attention}#1#{} Rounds,',
-            'sell this to',
-            '{C:attention}win the Blind',
-            '{C:inactive}(currently {C:attention}#2#{C:inactive}/{C:attention}#1#{C:inactive})'
-        }
-    },
+    key = 'joey_techx',
     atlas = 'Jokers',
     pos = {x = 5, y = 0},
     rarity = 1,
@@ -404,16 +360,7 @@ SMODS.Joker{
 }
 
 SMODS.Joker{
-    key = 'tetrachromancy',
-    loc_txt = {
-        name = 'Tetrachromacy',
-        text = {
-            'Creates {C:attention}The Fool',
-            'if played hand contains four',
-            'different scoring {C:attention}Suits',
-            '{C:inactive}(must have room)'
-        }
-    },
+    key = 'tetra',
     atlas = 'Jokers',
     pos = {x = 6, y = 0},
     soul_pos = {x = 7, y = 0},
@@ -472,15 +419,6 @@ end
 
 SMODS.Joker{
     key = 'oddments',
-    loc_txt = {
-        name = 'Oddments',
-        text = {
-            'This joker gains {C:chips}+#2#{} Chips',
-            'per unique scoring {C:attention}Rank{}',
-            'played each round',
-            '{C:inactive}(currently {C:chips}+#1#{C:inactive} Chips)'
-        }
-    },
     atlas = 'Jokers',
     pos = {x = 3, y = 0},
     rarity = 1,
@@ -526,15 +464,6 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'kinggila',
-    loc_txt = {
-        name = 'Flamethrower',
-        text = {
-            'Create up to 2 {C:planet}Planet',
-            '{C:planet}Cards{} if score',
-            'is currently {C:attention}on fire',
-            '{C:inactive}(must have room)'
-        }
-    },
     atlas = 'Jokers',
     pos = {x = 9, y = 0},
     soul_pos = {x = 0, y = 1},
@@ -583,13 +512,6 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'mmfood',
-    loc_txt = {
-        name = 'MM..FOOD',
-        text = {
-            'Copies the ability',
-            'of {C:attention}Food Jokers'
-        }
-    },
     atlas = 'Jokers',
     pos = {x = 8, y = 0},
     rarity = 2,
@@ -642,14 +564,6 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'robotstop',
-    loc_txt = {
-        name = 'Robot Stop',
-        text = {
-            '{C:attention}Retrigger{} each played card',
-            'if number of cards {C:attention}in full deck',
-            'is a multiple of {C:attention}#1#{C:inactive}#2#'
-        }
-    },
     atlas = 'Jokers',
     pos = {x = 1, y = 1},
     rarity = 2,
@@ -726,14 +640,6 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'icev',
-    loc_txt = {
-        name = 'Ice V',
-        text = {
-            'Create an {C:attention}Economy Tag {}if',
-            'played hand contains a {C:attention}Lucky 7',
-            'and an {C:attention}Ace of Spades'
-        }
-    },
     atlas = 'Jokers',
     pos = {x = 2, y = 1},
     rarity = 3,
@@ -825,16 +731,6 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'avoidaroid',
-    loc_txt = {
-        name = 'Avoid-a-Roid',
-        text = {
-            '{X:mult,C:white}X#1#{} Mult if played',
-            'hand contains a',
-            '{C:attention}Straight {}with #4# {C:attention}#2#',
-            '{C:inactive}(rank changes every round)'
-
-        }
-    },
     atlas = 'Jokers',
     pos = {x = 4, y = 1},
     rarity = 2,

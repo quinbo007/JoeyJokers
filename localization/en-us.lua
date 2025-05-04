@@ -65,8 +65,8 @@ return {
                 name = 'Flamethrower',
                 text = {
                     'Create up to 2 {C:planet}Planet',
-                    '{C:planet}Cards{} if score',
-                    'is currently {C:attention}on fire',
+                    '{C:planet}Cards{} when score',
+                    'is set {C:attention}on fire',
                     '{C:inactive}(must have room)'
                 }
             },

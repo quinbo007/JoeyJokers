@@ -472,7 +472,7 @@ SMODS.Joker{
     blueprint = true,
 
     calculate = function(self, card, context)
-        if context.joker_main and hand_chips * mult >= G.GAME.blind.chips then
+        if context.end_of_round and context.cardarea == G.jokers and hand_chips * mult >= G.GAME.blind.chips and not context.repetition then
             if G.consumeables.config.card_limit - #G.consumeables.cards - G.GAME.consumeable_buffer >= 2 then
                 G.E_MANAGER:add_event(Event({
                     func = function()

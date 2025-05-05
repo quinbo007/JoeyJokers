@@ -286,7 +286,8 @@ SMODS.Joker{
             else card.ability.extra.time = 'times'
             end
             if card.ability.extra.retriggers <= 0 then 
-                card.ability.extra.retriggers == 0
+                card.ability.extra.retriggers = 0
+            end
             return {
                 delay = 0.5,
                 message = '-'..(card.ability.extra.loss)..' retrigger',

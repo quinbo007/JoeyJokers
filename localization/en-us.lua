@@ -31,7 +31,7 @@ return {
                     'Retrigger {C:attention}last played',
                     'card {C:attention}#1#{} #4#. This joker gains',
                     '{C:attention}+#2#{} Trigger per unused discard',
-                    'and {C:attention}-#3#{} triggers per discard'
+                    'and {C:attention}-#3#{} triggers on discard'
                 }
             },
             j_joey_techx = {

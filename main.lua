@@ -269,7 +269,7 @@ SMODS.Joker{
     config = { extra = {
         retriggers = 0,
         gain = 1,
-        loss = 3,
+        loss = 6,
         time = 'times'
         }
     },

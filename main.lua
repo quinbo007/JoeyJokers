@@ -269,7 +269,7 @@ SMODS.Joker{
     config = { extra = {
         retriggers = 0,
         gain = 1,
-        loss = 2,
+        loss = 3,
         time = 'times'
         }
     },
@@ -285,6 +285,8 @@ SMODS.Joker{
                 card.ability.extra.time = 'time'
             else card.ability.extra.time = 'times'
             end
+            if card.ability.extra.retriggers <= 0 then 
+                card.ability.extra.retriggers == 0
             return {
                 delay = 0.5,
                 message = '-'..(card.ability.extra.loss)..' retrigger',

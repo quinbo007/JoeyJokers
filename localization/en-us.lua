@@ -64,7 +64,7 @@ return {
             j_joey_kinggila = {
                 name = 'Flamethrower',
                 text = {
-                    'Create up to 2 {C:planet}Planet',
+                    'Creates 1 {C:planet}Planet',
                     '{C:planet}Cards{} when score',
                     'is set {C:attention}on fire',
                     '{C:inactive}(must have room)'
@@ -109,6 +109,15 @@ return {
                     'hand contains a',
                     '{C:attention}Straight {}with #4# {C:attention}#2#',
                     '{C:inactive}(rank changes every round)'
+                }
+            },
+            j_joey_hazy = {
+                name = 'Hazy',
+                text = {
+                    'This joker gains {C:mult}+#1#',
+                    'mult per round without',
+                    'score {C:attention}catching fire',
+                    '{C:inactive}(currently {C:mult}+#2# {C:inactive}mult)'
                 }
             }
         },

@@ -269,7 +269,7 @@ SMODS.Joker{
     config = { extra = {
         retriggers = 0,
         gain = 1,
-        loss = 1,
+        loss = 2,
         time = 'times'
         }
     },
@@ -280,7 +280,7 @@ SMODS.Joker{
     calculate = function(self, card, context)
         -- Decreases number of retriggers by the "loss" value (1) on discard 
         if context.discard and context.other_card == context.full_hand[#context.full_hand] and card.ability.extra.retriggers > 0 and not context.blueprint then
-            card.ability.extra.retriggers = card.ability.extra.retriggers - 1
+            card.ability.extra.retriggers = card.ability.extra.retriggers - card.ability.extra.loss
             if card.ability.extra.retriggers == 1 then
                 card.ability.extra.time = 'time'
             else card.ability.extra.time = 'times'
@@ -473,27 +473,7 @@ SMODS.Joker{
 
     calculate = function(self, card, context)
         if context.end_of_round and context.cardarea == G.jokers and hand_chips * mult >= G.GAME.blind.chips and not context.repetition then
-            if G.consumeables.config.card_limit - #G.consumeables.cards - G.GAME.consumeable_buffer >= 2 then
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        local card = create_card('Planet',G.consumeables, nil, nil, nil, nil, nil, 'king')
-                        card:add_to_deck()
-                        G.consumeables:emplace(card)
-                        return true
-                    end
-                }))
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        local card = create_card('Planet',G.consumeables, nil, nil, nil, nil, nil, 'gila')
-                        card:add_to_deck()
-                        G.consumeables:emplace(card)
-                        return true
-                    end
-                }))
-                return {
-                    message = 'Scorched!'
-                }
-            elseif G.consumeables.config.card_limit - #G.consumeables.cards - G.GAME.consumeable_buffer == 1 then
+            if (G.consumeables.config.card_limit - #G.consumeables.cards - G.GAME.consumeable_buffer) >= 1 then
                 G.E_MANAGER:add_event(Event({
                     func = function()
                         local card = create_card('Planet',G.consumeables, nil, nil, nil, nil, nil, 'king')

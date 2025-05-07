@@ -323,12 +323,12 @@ SMODS.Joker{
     key = 'joey_techx',
     atlas = 'Jokers',
     pos = {x = 5, y = 0},
-    rarity = 1,
+    rarity = 2,
     cost = 5,
     blueprint = true,
     eternal = false,
     config = { extra = {
-        rounds = 4,
+        rounds = 3,
         remaining = 0
         }
     },
@@ -579,7 +579,7 @@ SMODS.Joker{
             }
         end
         if context.playing_card_added then
-            if ( #G.playing_cards / card.ability.extra.req) == math.ceil( #G.playing_cards / card.ability.extra.req) then
+            if ( #G.playing_cards / card.ability.extra.req) == math.floor( #G.playing_cards / card.ability.extra.req) then
                 G.E_MANAGER:add_event(Event({
                     func = function()
                         card.ability.extra.status = ' (active!)'

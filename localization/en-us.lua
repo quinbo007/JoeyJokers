@@ -111,6 +111,15 @@ return {
                     '{C:inactive}(rank changes every round)'
                 }
             },
+            j_joey_hazy = {
+                name = 'Hazy',
+                text = {
+                    'This joker gains {C:mult}+#1# {}mult',
+                    'per hand played without exceeding',
+                    ' {C:attention}#3#x {}the blind requirement',
+                    '{C:inactive}(currently {C:mult}+#2# {C:inactive}mult)'
+                }
+            },
             j_joey_economy= {
                 name = 'Economy',
                 text = {

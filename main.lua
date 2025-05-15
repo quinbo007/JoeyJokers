@@ -795,6 +795,39 @@ function SMODS.current_mod.reset_game_globals(run_start)
 end
 
 SMODS.Joker{
+    key = 'hazy',
+    atlas = 'Jokers',
+    pos = {x = 6, y = 1},
+    rarity = 1,
+    config = {extra = {
+        multbonus = 2,
+        mult = 0,
+        scorereq = 2
+    }},
+    cost = 5,
+    blueprint = true,
+
+    loc_vars = function(self,info_queue,card)
+        return {vars = {card.ability.extra.multbonus, card.ability.extra.mult, card.ability.extra.scorereq}}
+    end,
+    
+    calculate = function(self,card,context)
+        if context.joker_main then 
+            if not context.blueprint then
+                card.ability.extra.mult = card.ability.extra.mult + card.ability.extra.multbonus end
+            return { mult = card.ability.extra.mult }
+        end
+        if context.end_of_round and not context.blueprint and context.cardarea == G.jokers and G.GAME.chips >= G.GAME.blind.chips * card.ability.extra.scorereq then
+            card.ability.extra.mult = 0
+            return {
+                message = "Could've been worse...",
+                delay = 1
+            }
+        end
+    end
+}
+
+SMODS.Joker{
     key = 'economy',
     atlas = 'Jokers',
     pos = {x = 5, y = 1},

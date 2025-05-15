@@ -797,7 +797,7 @@ end
 SMODS.Joker{
     key = 'economy',
     atlas = 'Jokers',
-    pos = {x = 6, y = 1},
+    pos = {x = 5, y = 1},
     rarity = 2,
     config = {extra = {
         mult = 1
@@ -830,8 +830,8 @@ function SMODS.current_mod.reset_game_globals(run_start)
 end
 
 local easecash = ease_dollars
-function Game:init_game_object()
-	local ret = easecash(self)
-	ret.current_round.econmult = ret.current_round.econmult + mod
+function ease_dollars(mod, instant)
+	G.GAME.current_round.econmult = G.GAME.current_round.econmult + mod
+	local ret = easecash(mod,instant)
 	return ret
 end

@@ -110,8 +110,8 @@ return {
                     '{C:attention}Straight {}with #4# {C:attention}#2#',
                     '{C:inactive}(rank changes every round)'
                 }
-            }
-            j_joey_avoidaroid = {
+            },
+            j_joey_economy= {
                 name = 'Economy',
                 text = {
                     '{C:mult}+#1# {}mult per {C:money}$',

@@ -269,7 +269,7 @@ SMODS.Joker{
     config = { extra = {
         retriggers = 0,
         gain = 1,
-        loss = 666,
+        loss = 1,
         time = 'times'
         }
     },
@@ -280,13 +280,10 @@ SMODS.Joker{
     calculate = function(self, card, context)
         -- Decreases number of retriggers by the "loss" value (1) on discard 
         if context.discard and context.other_card == context.full_hand[#context.full_hand] and card.ability.extra.retriggers > 0 and not context.blueprint then
-            card.ability.extra.retriggers = card.ability.extra.retriggers - card.ability.extra.loss
+            card.ability.extra.retriggers = card.ability.extra.retriggers - 1
             if card.ability.extra.retriggers == 1 then
                 card.ability.extra.time = 'time'
             else card.ability.extra.time = 'times'
-            end
-            if card.ability.extra.retriggers <= 0 then 
-                card.ability.extra.retriggers = 0
             end
             return {
                 delay = 0.5,
@@ -323,12 +320,12 @@ SMODS.Joker{
     key = 'joey_techx',
     atlas = 'Jokers',
     pos = {x = 5, y = 0},
-    rarity = 2,
+    rarity = 1,
     cost = 5,
     blueprint = true,
     eternal = false,
     config = { extra = {
-        rounds = 3,
+        rounds = 4,
         remaining = 0
         }
     },
@@ -475,8 +472,28 @@ SMODS.Joker{
     blueprint = true,
 
     calculate = function(self, card, context)
-        if context.end_of_round and context.cardarea == G.jokers and hand_chips * mult >= G.GAME.blind.chips and not context.repetition then
-            if (G.consumeables.config.card_limit - #G.consumeables.cards - G.GAME.consumeable_buffer) >= 1 then
+        if context.joker_main and hand_chips * mult >= G.GAME.blind.chips then
+            if G.consumeables.config.card_limit - #G.consumeables.cards - G.GAME.consumeable_buffer >= 2 then
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        local card = create_card('Planet',G.consumeables, nil, nil, nil, nil, nil, 'king')
+                        card:add_to_deck()
+                        G.consumeables:emplace(card)
+                        return true
+                    end
+                }))
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        local card = create_card('Planet',G.consumeables, nil, nil, nil, nil, nil, 'gila')
+                        card:add_to_deck()
+                        G.consumeables:emplace(card)
+                        return true
+                    end
+                }))
+                return {
+                    message = 'Scorched!'
+                }
+            elseif G.consumeables.config.card_limit - #G.consumeables.cards - G.GAME.consumeable_buffer == 1 then
                 G.E_MANAGER:add_event(Event({
                     func = function()
                         local card = create_card('Planet',G.consumeables, nil, nil, nil, nil, nil, 'king')
@@ -579,7 +596,7 @@ SMODS.Joker{
             }
         end
         if context.playing_card_added then
-            if ( #G.playing_cards / card.ability.extra.req) == math.floor( #G.playing_cards / card.ability.extra.req) then
+            if ( #G.playing_cards / card.ability.extra.req) == math.ceil( #G.playing_cards / card.ability.extra.req) then
                 G.E_MANAGER:add_event(Event({
                     func = function()
                         card.ability.extra.status = ' (active!)'
@@ -778,34 +795,43 @@ function SMODS.current_mod.reset_game_globals(run_start)
 end
 
 SMODS.Joker{
-    key = 'hazy',
+    key = 'economy',
     atlas = 'Jokers',
     pos = {x = 6, y = 1},
-    rarity = 1,
+    rarity = 2,
     config = {extra = {
-        multbonus = 2,
-        mult = 0,
-        scorereq = 2
+        mult = 1
     }},
-    cost = 5,
+    cost = 6,
     blueprint = true,
 
     loc_vars = function(self,info_queue,card)
-        return {vars = {card.ability.extra.multbonus, card.ability.extra.mult, card.ability.extra.scorereq}}
+        return {vars = {card.ability.extra.mult, G.GAME.current_round.econmult}}
     end,
     
     calculate = function(self,card,context)
-        if context.joker_main then 
-            if not context.blueprint then
-                card.ability.extra.mult = card.ability.extra.mult + card.ability.extra.multbonus end
-            return { mult = card.ability.extra.mult }
-        end
-        if context.end_of_round and not context.blueprint and context.cardarea == G.jokers and G.GAME.chips >= G.GAME.blind.chips * card.ability.extra.scorereq then
-            card.ability.extra.mult = 0
+        if context.joker_main then
             return {
-                message = "Could've been worse...",
-                delay = 1
+                mult = G.GAME.current_round.econmult
             }
         end
     end
 }
+
+local igo2 = Game.init_game_object
+function Game:init_game_object()
+	local ret = igo2(self)
+	ret.current_round.econmult = 0
+	return ret
+end
+
+function SMODS.current_mod.reset_game_globals(run_start)
+    G.GAME.current_round.econmult = 0
+end
+
+local easecash = ease_dollars
+function Game:init_game_object()
+	local ret = easecash(self)
+	ret.current_round.econmult = ret.current_round.econmult + mod
+	return ret
+end

@@ -31,7 +31,7 @@ return {
                     'Retrigger {C:attention}last played',
                     'card {C:attention}#1#{} #4#. This joker gains',
                     '{C:attention}+#2#{} Trigger per unused discard',
-                    'and {C:attention}-#3#{} triggers on discard'
+                    'and {C:attention}-#3#{} trigger per discard'
                 }
             },
             j_joey_techx = {
@@ -64,9 +64,9 @@ return {
             j_joey_kinggila = {
                 name = 'Flamethrower',
                 text = {
-                    'Creates 1 {C:planet}Planet',
-                    '{C:planet}Cards{} when score',
-                    'is set {C:attention}on fire',
+                    'Create up to 2 {C:planet}Planet',
+                    '{C:planet}Cards{} if score',
+                    'is currently {C:attention}on fire',
                     '{C:inactive}(must have room)'
                 }
             },
@@ -110,13 +110,13 @@ return {
                     '{C:attention}Straight {}with #4# {C:attention}#2#',
                     '{C:inactive}(rank changes every round)'
                 }
-            },
-            j_joey_hazy = {
-                name = 'Hazy',
+            }
+            j_joey_avoidaroid = {
+                name = 'Economy',
                 text = {
-                    'This joker gains {C:mult}+#1# {}mult',
-                    'per hand played without exceeding',
-                    ' {C:attention}#3#x {}the blind requirement',
+                    '{C:mult}+#1# {}mult per {C:money}$',
+                    'earned, resets',
+                    'at end of round',
                     '{C:inactive}(currently {C:mult}+#2# {C:inactive}mult)'
                 }
             }

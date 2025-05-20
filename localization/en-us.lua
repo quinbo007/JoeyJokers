@@ -4,8 +4,9 @@ return {
             j_joey_openwater = {
                 name = 'Open Water',
                 text = {
-                    '{X:chips,C:white}1/#1#{} Chips,',
-                    '{X:mult,C:white}X#2#{} Mult'
+                    '{X:mult,C:white}X#2#{} Mult',
+                    'Base {C:chips}Chips {}are',
+                    'set to {C:attention}1{}'
             }},
             j_joey_feltmansion = {
                 name = 'Felt Mansion',
@@ -18,7 +19,7 @@ return {
             j_joey_braintelephone = {
                 name = 'Brain Telephone',
                 text = {
-                    'After 7 {C:attention}Digits',
+                    'After 10 {C:attention}Digits',
                     '{C:inactive}[#1#]',
                     'have been discarded,',
                     'create a {C:spectral}Spectral Card',
@@ -115,7 +116,7 @@ return {
                 name = 'Hazy',
                 text = {
                     'This joker gains {C:mult}+#1# {}mult',
-                    'per hand played without exceeding',
+                    'per round played without exceeding',
                     ' {C:attention}#3#x {}the blind requirement',
                     '{C:inactive}(currently {C:mult}+#2# {C:inactive}mult)'
                 }

@@ -23,19 +23,27 @@ SMODS.Joker {
     rarity = 2,
     cost = 5,
     config = { extra = {
-        chips = 3,
+        chips = 1,
         Xmult = 3
         }
     },
+    blueprint_compat = true,
+
     loc_vars = function(self,info_queue,card)
         return {vars = {card.ability.extra.chips, card.ability.extra.Xmult}}
     end,
 
     calculate= function(self,card,context)
+        if context.before and context.cardarea == G.jokers and not context.blueprint then
+            return {
+                chips = 0,
+                message = 'Sunk!',
+                colour =  G.C.SECONDARY_SET.Planet
+            }
+        end
         if context.joker_main then
             return { 
                 xmult = card.ability.extra.Xmult,
-                chips = math.min(math.floor(hand_chips * -((card.ability.extra.chips-1)/card.ability.extra.chips)), 0)
             }
         end
     end
@@ -48,10 +56,11 @@ SMODS.Joker {
     rarity = 3,
     cost = 7,
     blueprint_compat = true,
+    perishable_compat = false,
     config = { extra = {
         mult_mod = 15,
         discards = 4,
-        mult = 0
+        mult = 8
         }
     },
 
@@ -99,12 +108,15 @@ SMODS.Joker {
     pos = {x = 0, y = 0},
     rarity = 2,
     cost = 6,
-    blueprint = false,
+    blueprint_compat = true,
     config = { extra = {
         combination = '',
         valid_cards = {},
         card_list = {},
-        ranks = {}
+        ranks = {},
+        card_num = 10,
+        savedcardrank = 1,
+        cardspawns = 0
         }
     },
     
@@ -113,7 +125,7 @@ SMODS.Joker {
     loc_vars = function(self,info_queue,card)
         local vars
         if card.ability.extra.combination == '' then
-            vars = {'? ? ? ? ? ? ?'}
+            vars = {'? ? ? ? ? ? ? ? ? ?'}
         else
             vars = {card.ability.extra.combination}
         end
@@ -132,20 +144,20 @@ SMODS.Joker {
 		card.ability.extra.card_list = {}
 		-- fills card_list with unique items from valid_cards
 		if next(card.ability.extra.valid_cards) then
-			for i = 1, 7 do
+			for i = 1, card.ability.extra.card_num do
 				local index = pseudorandom_element(card.ability.extra.valid_cards, pseudoseed('phone'))
 				table.insert(card.ability.extra.card_list, index)
 				table.remove(card.ability.extra.valid_cards, card.ability.extra.valid_cards[index])
 			end
 		-- fallback
 		else 
-			for i = 1, 7 do
+			for i = 1, card.ability.extra.card_num do
 				table.insert(card.ability.extra.card_list, "Heart_5")
 			end
 		end	
 		-- sets table combination filled with the ranks of table card_list
 		local combination = {}
-		for i = 1, 7 do
+		for i = 1, card.ability.extra.card_num do
 			if card.ability.extra.card_list[i].base.value ~= 14 then 
 				table.insert(combination, card.ability.extra.card_list[i].base.value)
 			else
@@ -155,7 +167,7 @@ SMODS.Joker {
 
 		-- creates table ranks out of the ids of table card_list
 		card.ability.extra.ranks = {}
-		for i = 1, 7 do
+		for i = 1, card.ability.extra.card_num do
 			if card.ability.extra.card_list[i]:get_id() ~= 14 then 
 				table.insert(card.ability.extra.ranks, card.ability.extra.card_list[i]:get_id())
 			else
@@ -179,20 +191,20 @@ SMODS.Joker {
             card.ability.extra.card_list = {}
             -- fills card_list with unique items from valid_cards
             if next(card.ability.extra.valid_cards) then
-                for i = 1, 7 do
+                for i = 1, card.ability.extra.card_num do
                     local index = pseudorandom_element(card.ability.extra.valid_cards, pseudoseed('phone'))
                     table.insert(card.ability.extra.card_list, index)
                     table.remove(card.ability.extra.valid_cards, card.ability.extra.valid_cards[index])
                 end
             -- fallback
             else 
-				for i = 1, 7 do
+				for i = 1, card.ability.extra.card_num do
                 	table.insert(card.ability.extra.card_list, "Heart_5")
             	end
 			end	
                -- sets table combination filled with the ranks of table card_list
 			local combination = {}
-			for i = 1, 7 do
+			for i = 1, card.ability.extra.card_num do
 				if card.ability.extra.card_list[i].base.value ~= 14 then 
 					table.insert(combination, card.ability.extra.card_list[i].base.value)
 				else
@@ -202,7 +214,7 @@ SMODS.Joker {
 
 			-- creates table ranks out of the ids of table card_list
 			card.ability.extra.ranks = {}
-			for i = 1, 7 do
+			for i = 1, card.ability.extra.card_num do
 				if card.ability.extra.card_list[i]:get_id() ~= 14 then 
 					table.insert(card.ability.extra.ranks, card.ability.extra.card_list[i]:get_id())
 				else
@@ -214,30 +226,28 @@ SMODS.Joker {
         end
         if context.discard then
             -- clears card_list and creates a spectral if the last value is removed
-            if #card.ability.extra.ranks == 1 and context.other_card:get_id() == card.ability.extra.ranks[#card.ability.extra.ranks] then
+            if #card.ability.extra.ranks <= 1 and context.other_card:get_id() == card.ability.extra.savedcardrank then
                 card.ability.extra.card_list  = {}
                 card.ability.extra.ranks = {}
-                card.ability.extra.combination = 'Called!'
-                if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
-                    G.E_MANAGER:add_event(Event({
-                        func = function()
-                            local card = create_card('Spectral',G.consumeables, nil, nil, nil, nil, nil, 'bra')
-                            card:add_to_deck()
-                            G.consumeables:emplace(card)
-                            return true
-                        end
-                    }))
-                    return {
-                        delay = 0.75,
-                        message = 'Called!',
-                        colour = G.C.SECONDARY_SET.Spectral
-                    }
-                end
+                card.ability.extra.combination = 'Called!' 
+                    if #G.consumeables.cards + G.GAME.consumeable_buffer + card.ability.extra.cardspawns < G.consumeables.config.card_limit then  
+                        card.ability.extra.cardspawns = card.ability.extra.cardspawns + 1
+                        G.E_MANAGER:add_event(Event({
+                            func = function()
+                                local card = create_card('Spectral',G.consumeables, nil, nil, nil, nil, nil, 'bra')
+                                card:add_to_deck()
+                                G.consumeables:emplace(card)
+                                return true
+                            end
+                        }))
+                    end
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = 'Called!', colour = G.C.PURPLE})
                 --scans ranks for values with ids matching the discarded card, then removes those values from ranks and card_list
             elseif not context.blueprint then
 				for i, v in ipairs(card.ability.extra.ranks) do 
 					if v == 1 and context.other_card:get_id() == 14 then 
 						table.remove(card.ability.extra.ranks, i)
+                        card.ability.extra.savedcardrank = card.ability.extra.ranks[1] 
 						card.ability.extra.combination = table.concat(card.ability.extra.ranks, ' ', 1, #card.ability.extra.ranks)
                         return {
                             delay = .375,
@@ -246,6 +256,7 @@ SMODS.Joker {
                         }
 					elseif v == context.other_card:get_id() then
 						table.remove(card.ability.extra.ranks, i)
+                        card.ability.extra.savedcardrank = card.ability.extra.ranks[1]
 						card.ability.extra.combination = table.concat(card.ability.extra.ranks, ' ', 1, #card.ability.extra.ranks)
                         return {
                             delay = .375,
@@ -256,6 +267,9 @@ SMODS.Joker {
 				end
             end
         end
+        if context.after then
+            card.ability.extra.cardspawns = 0
+        end
 	end
 }
 
@@ -265,11 +279,12 @@ SMODS.Joker{
     pos = {x = 1, y = 0},
     rarity = 3,
     cost = 8,
-    blueprint = true,
+    blueprint_compat = true,
+    perishable_compat = false,
     config = { extra = {
         retriggers = 0,
         gain = 1,
-        loss = 1,
+        loss = 666,
         time = 'times'
         }
     },
@@ -320,12 +335,12 @@ SMODS.Joker{
     key = 'joey_techx',
     atlas = 'Jokers',
     pos = {x = 5, y = 0},
-    rarity = 1,
+    rarity = 2,
     cost = 5,
-    blueprint = true,
+    blueprint_compat = true,
     eternal = false,
     config = { extra = {
-        rounds = 4,
+        rounds = 3,
         remaining = 0
         }
     },
@@ -366,7 +381,7 @@ SMODS.Joker{
     soul_pos = {x = 7, y = 0},
     rarity = 2,
     cost = 6,
-    blueprint = true,
+    blueprint_compat = true,
 
     loc_vars = function(self,info_queue,card)
         info_queue[#info_queue + 1] = G.P_CENTERS.c_fool
@@ -423,7 +438,8 @@ SMODS.Joker{
     pos = {x = 3, y = 0},
     rarity = 1,
     cost = 4,
-    blueprint = true,
+    blueprint_compat = true,
+    perishable_compat = false,
     config = {extra = {
         chips = 0,
         bonuschips = 2,
@@ -469,7 +485,7 @@ SMODS.Joker{
     soul_pos = {x = 0, y = 1},
     rarity = 1,
     cost = 6,
-    blueprint = true,
+    blueprint_compat = true,
 
     calculate = function(self, card, context)
         if context.joker_main and hand_chips * mult >= G.GAME.blind.chips then
@@ -516,7 +532,7 @@ SMODS.Joker{
     pos = {x = 8, y = 0},
     rarity = 2,
     cost = 5,
-    blueprint = true,
+    blueprint_compat = true,
     config = {extra = {
         food = {
             'Loyalty Card',
@@ -568,9 +584,9 @@ SMODS.Joker{
     pos = {x = 1, y = 1},
     rarity = 2,
     cost = 5,
-    blueprint = true,
+    blueprint_compat = true,
     config = {extra = {
-        req = 7,
+        req = 9,
         status = ''
         }
     },
@@ -644,7 +660,7 @@ SMODS.Joker{
     pos = {x = 2, y = 1},
     rarity = 3,
     cost = 8,
-    blueprint = true,
+    blueprint_compat = true,
 
     loc_vars = function(self,info_queue,card)
         info_queue[#info_queue + 1] = G.P_TAGS.tag_economy
@@ -684,15 +700,6 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'draculadrug',
-    loc_txt = {
-        name = 'Dracula Drug',
-        text = {
-            '{C:attention}Removes Enhancements {}from each',
-            'played card in scoring hand,',
-            '{X:mult,C:white}X#1#{} Mult per Enhancement removed',
-            '{C:inactive}(resets each hand)'
-        }
-    },
     atlas = 'Jokers',
     pos = {x = 3, y = 1},
     rarity = 1,
@@ -701,7 +708,7 @@ SMODS.Joker{
         mult = 1
     }},
     cost = 5,
-    blueprint = true,
+    blueprint_compat = true,
 
     loc_vars = function(self,info_queue,card)
         return {vars = {card.ability.extra.bonus, card.ability.extra.mult}}
@@ -738,7 +745,7 @@ SMODS.Joker{
         mult = 3
     }},
     cost = 6,
-    blueprint = true,
+    blueprint_compat = true,
 
     loc_vars = function(self,info_queue,card)
         info_queue[#info_queue + 1] = {key = 'joey_credit_conboi', set = 'Other'}
@@ -800,12 +807,13 @@ SMODS.Joker{
     pos = {x = 6, y = 1},
     rarity = 1,
     config = {extra = {
-        multbonus = 2,
+        multbonus = 4,
         mult = 0,
         scorereq = 2
     }},
     cost = 5,
-    blueprint = true,
+    blueprint_compat = true,
+    perishable_compat = false,
 
     loc_vars = function(self,info_queue,card)
         return {vars = {card.ability.extra.multbonus, card.ability.extra.mult, card.ability.extra.scorereq}}
@@ -813,16 +821,21 @@ SMODS.Joker{
     
     calculate = function(self,card,context)
         if context.joker_main then 
-            if not context.blueprint then
-                card.ability.extra.mult = card.ability.extra.mult + card.ability.extra.multbonus end
             return { mult = card.ability.extra.mult }
         end
-        if context.end_of_round and not context.blueprint and context.cardarea == G.jokers and G.GAME.chips >= G.GAME.blind.chips * card.ability.extra.scorereq then
-            card.ability.extra.mult = 0
-            return {
-                message = "Could've been worse...",
-                delay = 1
-            }
+        if context.end_of_round and not context.blueprint and context.cardarea == G.jokers then
+            if G.GAME.chips >= G.GAME.blind.chips * card.ability.extra.scorereq then
+                card.ability.extra.mult = 0
+                return {
+                    message = "Could've been worse...",
+                    delay = 1
+                }
+            else 
+                card.ability.extra.mult = card.ability.extra.mult + card.ability.extra.multbonus
+                return {
+                    message = "+"..card.ability.extra.mult..' Mult'
+                }
+            end
         end
     end
 }
@@ -836,7 +849,7 @@ SMODS.Joker{
         mult = 1
     }},
     cost = 6,
-    blueprint = true,
+    blueprint_compat = true,
 
     loc_vars = function(self,info_queue,card)
         return {vars = {card.ability.extra.mult, G.GAME.current_round.econmult}}
@@ -846,6 +859,11 @@ SMODS.Joker{
         if context.joker_main then
             return {
                 mult = G.GAME.current_round.econmult
+            }
+        end
+        if context.end_of_round and context.cardarea == G.jokers then
+            return {
+                message = localize('k_reset_ex')
             }
         end
     end

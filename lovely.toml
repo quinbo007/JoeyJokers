@@ -1,0 +1,26 @@
+[manifest]
+version = "1.0.0"
+priority = 0
+
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = "local hand_text_set = false"
+position = "before"
+payload = '''
+local hasopenwater = false
+for i = 1, #G.jokers.cards do 
+    print(G.jokers.cards[i].ability.name)
+    if G.jokers.cards[i].ability.name == 'j_joey_openwater' then 
+        print(hasopenwater)
+        hasopenwater = true
+    end
+end
+print(hasopenwater)
+if hasopenwater then 
+    hand_chips = 1
+    update_hand_text({delay = 0}, {chips = hand_chips})
+end
+'''
+match_indent = true
+times = 1

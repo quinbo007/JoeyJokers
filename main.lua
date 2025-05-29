@@ -16,6 +16,35 @@ SMODS.Atlas {
     py = 95
 }
 
+getrankname = function(id)
+    if id == 14 then return ('Ace')
+    elseif id == 13 then return ('King')
+    elseif id == 12 then return ('Queen')
+    elseif id == 11 then return ('Jack')
+    else return (id)
+    end
+end
+
+function SMODS.current_mod.reset_game_globals(run_start)
+
+    G.GAME.current_round.econmult = 0
+
+    G.GAME.current_round.roid_card.rank = 7
+    local roidranks = {}
+    for _, v in ipairs(G.playing_cards) do
+        if not SMODS.has_no_rank(v) then roidranks[#roidranks + 1] = v end
+    end
+    if roidranks[1] then 
+        local roidcard = pseudorandom_element(roidranks, pseudoseed('roid'..G.GAME.round_resets.ante))
+        G.GAME.current_round.roid_card.rank = roidcard.base.id
+        G.GAME.current_round.roid_card.name = getrankname(roidcard.base.id)
+        if G.GAME.current_round.roid_card.rank == 14 or G.GAME.current_round.roid_card.rank == 8 then
+            G.GAME.current_round.roid_card.letter = 'an'
+        else G.GAME.current_round.roid_card.letter = 'a'
+        end
+    end
+end
+
 SMODS.Joker {
     key = 'openwater',
     atlas = 'Jokers',
@@ -337,8 +366,8 @@ SMODS.Joker{
     pos = {x = 5, y = 0},
     rarity = 2,
     cost = 5,
-    blueprint_compat = true,
-    eternal = false,
+    blueprint_compat = false,
+    eternal_compat = false,
     config = { extra = {
         rounds = 3,
         remaining = 0
@@ -775,32 +804,6 @@ function Game:init_game_object()
 	return ret
 end
 
--- this is unoptimized to shit lmao
-function SMODS.current_mod.reset_game_globals(run_start)
-    G.GAME.current_round.roid_card.rank = 7
-    local roidranks = {}
-    for _, v in ipairs(G.playing_cards) do
-        if not SMODS.has_no_rank(v) then roidranks[#roidranks + 1] = v end
-    end
-    if roidranks[1] then 
-        local roidcard = pseudorandom_element(roidranks, pseudoseed('roid'..G.GAME.round_resets.ante))
-        G.GAME.current_round.roid_card.rank = roidcard.base.id
-        if G.GAME.current_round.roid_card.rank == 14 then G.GAME.current_round.roid_card.name = 'Ace'
-            G.GAME.current_round.roid_card.letter = 'an'
-        elseif G.GAME.current_round.roid_card.rank == 13 then G.GAME.current_round.roid_card.name = 'King'
-            G.GAME.current_round.roid_card.letter = 'a'
-        elseif G.GAME.current_round.roid_card.rank == 12 then G.GAME.current_round.roid_card.name = 'Queen'
-            G.GAME.current_round.roid_card.letter = 'a'
-        elseif G.GAME.current_round.roid_card.rank == 11 then G.GAME.current_round.roid_card.name = 'Jack'
-            G.GAME.current_round.roid_card.letter = 'a'
-        elseif G.GAME.current_round.roid_card.rank == 8 then G.GAME.current_round.roid_card.name = '8'
-            G.GAME.current_round.roid_card.letter = 'an'
-        else G.GAME.current_round.roid_card.name = G.GAME.current_round.roid_card.rank
-            G.GAME.current_round.roid_card.letter = 'a'
-        end
-    end
-end
-
 SMODS.Joker{
     key = 'hazy',
     atlas = 'Jokers',
@@ -876,13 +879,63 @@ function Game:init_game_object()
 	return ret
 end
 
-function SMODS.current_mod.reset_game_globals(run_start)
-    G.GAME.current_round.econmult = 0
-end
-
 local easecash = ease_dollars
 function ease_dollars(mod, instant)
-	G.GAME.current_round.econmult = G.GAME.current_round.econmult + mod
+    if mod > 0 then
+	    G.GAME.current_round.econmult = G.GAME.current_round.econmult + mod
+    end
 	local ret = easecash(mod,instant)
 	return ret
 end
+
+SMODS.Atlas {
+    key = "vinyl",
+    path = "vinyl.png",
+    px = 71,
+    py = 71
+}
+
+SMODS.Joker{
+    key = 'luckyrainbow',
+    atlas = 'vinyl',
+    pos = {x = 14, y = 0},
+    soul_pos = {x = 0, y = 0},
+    display_size = {w = 71, h = 71},
+    rarity = 1,
+    config = {extra = {
+        mult = 8,
+        rank = 0,
+        rankname = '?'
+    }},
+    cost = 3,
+    blueprint_compat = true,
+
+    loc_vars = function(self,info_queue,card)
+        return {vars = {card.ability.extra.mult, card.ability.extra.rank, card.ability.extra.rankname}}
+    end,
+
+    add_to_deck = function(self,card)
+        if card.ability.extra.rank == 0 then 
+            local valid_ranks = {}
+            for i, v in ipairs(G.playing_cards) do
+                if not SMODS.has_no_rank(v) then valid_ranks[#valid_ranks + 1] = v.base.id
+                end
+            end
+            if valid_ranks[1] then 
+                card.ability.extra.rank = pseudorandom_element(valid_ranks, pseudoseed('luckyrainbow'..G.GAME.round_resets.ante))
+                card.ability.extra.rankname = getrankname(card.ability.extra.rank)
+                if card.ability.extra.rank <= 14 then
+                    local spritepos = card.ability.extra.rank - 1
+                    card.children.floating_sprite:set_sprite_pos({x = spritepos, y = 0})
+                end
+            end
+        end
+    end,
+
+    calculate = function(self,card,context)
+        if context.individual and context.cardarea == G.play and not card.debuff then
+            if context.other_card:get_id() == card.ability.extra.rank then return {mult = card.ability.extra.mult}
+            end
+        end
+    end
+}

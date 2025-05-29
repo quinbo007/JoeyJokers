@@ -124,10 +124,18 @@ return {
             j_joey_economy= {
                 name = 'Economy',
                 text = {
-                    '{C:mult}+#1# {}mult per {C:money}$',
+                    '{C:mult}+#1# {}Mult per {C:money}$',
                     'earned, resets',
                     'at end of round',
                     '{C:inactive}(currently {C:mult}+#2# {C:inactive}mult)'
+                }
+            },
+            j_joey_luckyrainbow = {
+                name = 'Lucky Rainbow',
+                text = {
+                    'Played {C:attention}#3#s{} give',
+                    '{C:mult}+#1#{} Mult when scored',
+                    '{C:inactive}(rank set when gained)'
                 }
             }
         },

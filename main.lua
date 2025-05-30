@@ -53,7 +53,8 @@ SMODS.Joker {
     cost = 5,
     config = { extra = {
         chips = 1,
-        Xmult = 3
+        Xmult = 3,
+        savedchips = {}
         }
     },
     blueprint_compat = true,
@@ -62,14 +63,20 @@ SMODS.Joker {
         return {vars = {card.ability.extra.chips, card.ability.extra.Xmult}}
     end,
 
-    calculate= function(self,card,context)
-        if context.before and context.cardarea == G.jokers and not context.blueprint then
-            return {
-                chips = 0,
-                message = 'Sunk!',
-                colour =  G.C.SECONDARY_SET.Planet
-            }
+    add_to_deck = function(self, card)
+        for i, v in pairs(G.GAME.hands) do 
+            card.ability.extra.savedchips[i] = G.GAME.hands[i].chips - 1
+            G.GAME.hands[i].chips = 1
         end
+    end,
+
+    remove_from_deck = function(self, card, from_debuff)
+        for i, v in pairs(G.GAME.hands) do 
+            G.GAME.hands[i].chips = 1 + card.ability.extra.savedchips[i]
+        end
+    end,
+
+    calculate= function(self,card,context)
         if context.joker_main then
             return { 
                 xmult = card.ability.extra.Xmult,
@@ -823,6 +830,12 @@ SMODS.Joker{
     end,
     
     calculate = function(self,card,context)
+        if context.first_hand_drawn then
+            card.ability.extra.mult = card.ability.extra.mult + card.ability.extra.multbonus
+            return {
+                message = "+"..card.ability.extra.mult..' Mult'
+            }
+        end
         if context.joker_main then 
             return { mult = card.ability.extra.mult }
         end
@@ -832,11 +845,6 @@ SMODS.Joker{
                 return {
                     message = "Could've been worse...",
                     delay = 1
-                }
-            else 
-                card.ability.extra.mult = card.ability.extra.mult + card.ability.extra.multbonus
-                return {
-                    message = "+"..card.ability.extra.mult..' Mult'
                 }
             end
         end

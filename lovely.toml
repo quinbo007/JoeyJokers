@@ -4,22 +4,53 @@ priority = 0
 
 [[patches]]
 [patches.pattern]
-target = "functions/state_events.lua"
-pattern = "local hand_text_set = false"
-position = "before"
+target = "functions/common_events.lua"
+pattern = "amount = amount or 1"
+position = "at"
 payload = '''
-local hasopenwater = false
-for i = 1, #G.jokers.cards do 
-    print(G.jokers.cards[i].ability.name)
-    if G.jokers.cards[i].ability.name == 'j_joey_openwater' then 
-        print(hasopenwater)
-        hasopenwater = true
+    amount = amount or 1
+    hasopenwater = false
+    print('test')
+    for i, v in ipairs(G.jokers.cards) do
+        if G.jokers.cards[i].ability.name == 'j_joey_openwater' then
+            hasopenwater = true
+            print(hasopenwater)
+        end
+    end
+'''
+match_indent = true
+times = 1
+
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = "G.GAME.hands[hand].chips = math.max(G.GAME.hands[hand].s_chips + G.GAME.hands[hand].l_chips*(G.GAME.hands[hand].level - 1), 0)"
+position = "at"
+payload = '''
+if hasopenwater == false then 
+    G.GAME.hands[hand].chips = math.max(G.GAME.hands[hand].s_chips + G.GAME.hands[hand].l_chips*(G.GAME.hands[hand].level - 1), 0)
+else
+    for i, v in ipairs(G.jokers.cards) do
+        if G.jokers.cards[i].ability.name == 'j_joey_openwater' then
+            for h, k in pairs(G.GAME.hands) do 
+                v.ability.extra.savedchips[h] = math.max(v.ability.extra.savedchips[h] + G.GAME.hands[hand].l_chips*(G.GAME.hands[hand].level - 1), 0)
+                G.GAME.hands[h].chips = 1
+            end
+        end
     end
 end
-print(hasopenwater)
-if hasopenwater then 
-    hand_chips = 1
-    update_hand_text({delay = 0}, {chips = hand_chips})
+'''
+match_indent = true
+times = 1
+
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = "update_hand_text({delay = 0}, {chips = G.GAME.hands[hand].chips, StatusText = true})"
+position = "at"
+payload = '''
+if hasopenwater == false then
+    update_hand_text({delay = 0}, {chips = G.GAME.hands[hand].chips, StatusText = true})
 end
 '''
 match_indent = true

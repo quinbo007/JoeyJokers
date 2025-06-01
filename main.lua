@@ -43,6 +43,8 @@ function SMODS.current_mod.reset_game_globals(run_start)
         else G.GAME.current_round.roid_card.letter = 'a'
         end
     end
+
+    G.GAME.current_round.zhen_hands = G.GAME.current_round.hands_left
 end
 
 SMODS.Joker {
@@ -589,25 +591,12 @@ SMODS.Joker{
         return {vars = {card.ability.extra.food}}
     end,
 
-    calculate = function(self,card,context)
-        if context.joker_main then 
-            for i = 1, #G.jokers.cards do 
-                for h, k in ipairs(card.ability.extra.food) do
-                    if  G.jokers.cards[i].ability.name == card.ability.extra.food[h] then
-                        local ret = SMODS.blueprint_effect(card, G.jokers.cards[i], context)
-                        if ret then SMODS.calculate_effect(ret,card) end
-                    end
-                end
-            end
-        end
-        if context.repetition and context.cardarea == G.play and context.scoring_hand then
-            for i = 1, #G.jokers.cards do 
-                if G.jokers.cards[i].ability.name == 'Seltzer' then
-                    return {
-                        message = localize('k_again_ex'),
-                        repetitions = 1,
-                        card = card
-                    }
+    calculate = function(self,card,context) 
+        for i = 1, #G.jokers.cards do 
+            for h, k in ipairs(card.ability.extra.food) do
+                if  G.jokers.cards[i].ability.name == card.ability.extra.food[h] then
+                    local ret = SMODS.blueprint_effect(card, G.jokers.cards[i], context)
+                    if ret then SMODS.calculate_effect(ret,card) end
                 end
             end
         end
@@ -947,3 +936,33 @@ SMODS.Joker{
         end
     end
 }
+
+SMODS.Joker{
+    key = 'zhen',
+    atlas = 'Jokers',
+    pos = {x = 7, y = 1},
+    soul_pos = {x = 8, y = 1},
+    rarity = 4,
+    cost = 20,
+    blueprint_compat = true,
+
+    loc_vars = function(self,info_queue,card)
+        return {vars = {G.GAME.current_round.zhen_hands}}
+    end,
+    
+    calculate = function(self,card,context)
+        if context.setting_blind and not card.getting_sliced then
+            G.E_MANAGER:add_event(Event({func = function()
+                ease_hands_played(G.GAME.current_round.zhen_hands)
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = localize{type = 'variable', key = 'a_hands', vars = {G.GAME.current_round.zhen_hands}}})
+            return true end }))
+        end
+    end
+}
+
+local zhen_igo = Game.init_game_object
+function Game:init_game_object()
+	local ret = zhen_igo(self)
+	ret.current_round.zhen_hands = 0
+	return ret
+end

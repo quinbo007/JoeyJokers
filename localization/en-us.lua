@@ -65,9 +65,9 @@ return {
             j_joey_kinggila = {
                 name = 'Flamethrower',
                 text = {
-                    'Create up to 2 {C:planet}Planet',
-                    '{C:planet}Cards{} if score',
-                    'is currently {C:attention}on fire',
+                    'Create a {C:planet}Planet Card',
+                    'when score is set',
+                    '{C:attention}on fire',
                     '{C:inactive}(must have room)'
                 }
             },
@@ -136,6 +136,14 @@ return {
                     'Played {C:attention}#3#s{} give',
                     '{C:mult}+#1#{} Mult when scored',
                     '{C:inactive}(rank set when gained)'
+                }
+            },
+            j_joey_zhen = {
+                name = 'Z',
+                text = {
+                    '{C:blue}+1{} Hand per unused',
+                    'Hand last round',
+                    '{C:inactive}(currently {C:blue}+#1#{C:inactive} hands)'
                 }
             }
         },

@@ -1,5 +1,16 @@
 return {
     descriptions = {
+        Enhanced = {
+            m_joey_joculinewild = {
+                name = 'Wild Card',
+                text = {
+                'Can be used',
+                'as any Suit',
+                '{C:inactive,s:0.7}(removed along',
+                '{C:inactive,s:0.7}with Joculine)'
+                }
+            } 
+        },
         Joker = {
             j_joey_openwater = {
                 name = 'Open Water',
@@ -145,6 +156,37 @@ return {
                     'Hand last round',
                     '{C:inactive}(currently {C:blue}+#1#{C:inactive} hands)'
                 }
+            },
+            j_joey_joculine = {
+                name = 'Joculine',
+                text = {
+                'After #1# {C:inactive}[#2#]{} Rounds, all {C:attention}Cards',
+                'in deck become {C:attention}Wild Cards',
+                '{C:inactive,s:0.7}(cards unenhanced when this joker is sold)'
+                }
+            },
+            j_joey_riotus = {
+                name = 'Riotus',
+                text = { 'Each played {V:1}#1# {}gives',
+                '{X:mult,C:white}X#2#{} Mult when scored',
+                '{C:inactive}(suit changes on trigger)'
+                }
+            },
+            j_joey_mizzlebip = {
+                name = 'Mizzlebip',
+                text = { '{X:mult,C:white}X#1#{} Mult per scoring {C:attention}Rank {}and',
+                '{X:mult,C:white}X#2#{} Mult per scoring {C:attention}Suit',
+                'played this round',
+                '{C:inactive}(currently {X:mult,C:white}X#3#{C:inactive} Mult and {X:mult,C:white}X#4#{C:inactive} Mult)'
+                }
+            },
+            j_joey_dclussie = {
+                name = 'D-Clussie',
+                text = {
+                    'When {C:attention}Boss Blind {}is',
+                    'defeated, {C:green}#1# in 13 chance',
+                    'for {C:attention}#2# {}Ante'
+                }
             }
         },
         Other = {
@@ -155,6 +197,12 @@ return {
                     'by Conboi'
                 }
             }
+        }
+    },
+    misc = {
+        v_dictionary = {
+            joey_retcon = 'Retconned!',
+            joey_converted = 'Converted!'
         }
     }
 }

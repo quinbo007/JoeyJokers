@@ -16,6 +16,13 @@ SMODS.Atlas {
     py = 95
 }
 
+SMODS.Atlas {
+    key = "Enhancements",
+    path = "Enhancements.png",
+    px = 71,
+    py = 95
+}
+
 getrankname = function(id)
     if id == 14 then return ('Ace')
     elseif id == 13 then return ('King')
@@ -344,7 +351,7 @@ SMODS.Joker{
                 colour = G.C.RED
             }
         end
-        -- Retriggers last played card equal to number of retriggers. Doesnt work rn
+        -- Retriggers last played card equal to number of retriggers
         if context.repetition and context.cardarea == G.play and context.scoring_hand and context.other_card == context.scoring_hand[#context.scoring_hand] then 
             return {
                 message = localize('k_again_ex'),
@@ -387,11 +394,11 @@ SMODS.Joker{
     end,
 
     calculate = function(self, card, context)
-        if context.end_of_round and context.main_eval and not context_blueprint and card.ability.extra.remaining < card.ability.extra.rounds then
+        if context.end_of_round and context.main_eval and not context.blueprint and card.ability.extra.remaining < card.ability.extra.rounds then
             card.ability.extra.remaining = card.ability.extra.remaining + 1
             if card.ability.extra.remaining == card.ability.extra.rounds then
                 card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil,
-				{ message = 'Active!' })
+				{ message = localize('k_active_ex') })
             else 
                 card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil,
 				{ message = card.ability.extra.remaining..'/'..card.ability.extra.rounds })
@@ -937,6 +944,8 @@ SMODS.Joker{
     end
 }
 
+-- Legendary Jokers
+
 SMODS.Joker{
     key = 'zhen',
     atlas = 'Jokers',
@@ -966,3 +975,254 @@ function Game:init_game_object()
 	ret.current_round.zhen_hands = 0
 	return ret
 end
+
+SMODS.Joker{
+    key = 'joculine',
+    atlas = 'Jokers',
+    pos = {x = 0, y = 2},
+    soul_pos = {x = 9, y = 1},
+    rarity = 4,
+    cost = 20,
+    config = { extra = {
+        rounds = 3,
+        roundsLeft = 0
+        }
+    },
+    blueprint_compat = false,
+
+    loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue + 1] = G.P_CENTERS.m_joey_joculinewild
+        return {vars = {card.ability.extra.rounds, card.ability.extra.roundsLeft}}
+    end,
+
+    remove_from_deck = function(self, card, from_debuff)
+        for i, v in ipairs(G.hand.cards) do 
+            if v.config.center == G.P_CENTERS.m_joey_joculinewild then
+                v:set_ability(G.P_CENTERS.c_base, nil, true)
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        v:juice_up()
+                        return true
+                    end
+                })) 
+            end
+        end
+        for h, k in ipairs(G.playing_cards) do
+            if k.config.center == G.P_CENTERS.m_joey_joculinewild then
+                k:set_ability(G.P_CENTERS.c_base, nil, true)
+            end
+        end
+    end,
+    
+    calculate = function(self,card,context)
+        if context.end_of_round and context.main_eval and not context.blueprint and not context.repetition  then
+            if card.ability.extra.roundsLeft ~= 'Active!' then 
+                if card.ability.extra.roundsLeft <= 2 then
+                    card.ability.extra.roundsLeft = card.ability.extra.roundsLeft + 1
+                    card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil,
+				        { message = card.ability.extra.roundsLeft..'/'..card.ability.extra.rounds })
+                    if card.ability.extra.roundsLeft == 3 then 
+                        for i, v in ipairs(G.hand.cards) do
+                            if v.config.center == G.P_CENTERS.c_base then
+                                v:set_ability(G.P_CENTERS.m_joey_joculinewild, nil, true)
+                                G.E_MANAGER:add_event(Event({
+                                    func = function()
+                                        v:juice_up()
+                                        return true
+                                    end
+                                })) 
+                            end
+                        end
+                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil,
+				            { message = 'Converted!' })
+                        for h, k in ipairs(G.playing_cards) do
+                            if k.config.center == G.P_CENTERS.c_base then
+                                k:set_ability(G.P_CENTERS.m_joey_joculinewild, nil, true)
+                            end
+                        end
+                        card.ability.extra.roundsLeft = 'Active!'
+                    end
+                end
+            end
+        end
+        if context.selling_self and card.ability.extra.roundsLeft == 'Active!' then
+            card_eval_status_text(card, 'extra', nil, nil, nil,
+			{ message = 'Betrayed!',
+            delay = 1 })
+        end
+    end
+}
+
+SMODS.Enhancement{
+    key = 'joculinewild',
+    atlas = 'Enhancements',
+    pos = {x = 0, y = 0},
+    any_suit = true
+}
+
+SMODS.Joker{
+    key = 'riotus',
+    atlas = 'Jokers',
+    pos = {x = 1, y = 2},
+    soul_pos = {x = 2, y = 2},
+    rarity = 4,
+    cost = 20,
+    config = {extra = {
+        mult = 2
+    }},
+    blueprint_compat = true,
+
+    loc_vars = function(self,info_queue,card)
+        return {vars = {
+            localize(G.GAME.riotus_suit, 'suits_singular'),
+            card.ability.extra.mult,
+            colours = {G.C.SUITS[G.GAME.riotus_suit]}
+        }}
+    end,
+    
+    calculate = function(self,card,context)
+        if context.before and not context.blueprint then
+            for h, k in ipairs(context.scoring_hand) do 
+                if k:is_suit(G.GAME.riotus_suit) then
+                    k.riotusTrigger = true
+                    resetRiotus()
+                end
+            end
+        end
+        if context.cardarea == G.play and context.individual then
+            if context.other_card.riotusTrigger then
+                return {
+                    x_mult = card.ability.extra.mult,
+                    card = card
+                }
+            end
+        end
+        if context.after and not context.blueprint then
+            for i, v in ipairs(G.playing_cards) do
+                if v.riotusTrigger == true then
+                    v.riotusTrigger = false
+                end
+            end
+        end
+    end
+}
+
+local riotus_igo = Game.init_game_object
+function Game:init_game_object()
+	local ret = riotus_igo(self)
+	ret.riotus_suit = 'Diamonds'
+	return ret
+end
+
+function resetRiotus()
+    G.GAME.riotus_suit = 'Diamonds'
+    local validSuits = {}
+    for k, v in ipairs(G.playing_cards) do
+        if not SMODS.has_no_suit(v) then
+            validSuits[#validSuits+1] = v
+        end
+    end
+    if validSuits[1] then 
+        local riotusCard = pseudorandom_element(validSuits, pseudoseed('riotus'))
+        G.GAME.riotus_suit = riotusCard.base.suit
+    end
+end
+
+SMODS.Joker{
+    key = 'mizzlebip',
+    atlas = 'Jokers',
+    pos = {x = 3, y = 2},
+    soul_pos = {x = 4, y = 2},
+    rarity = 4,
+    cost = 20,
+    config = {extra = {
+        rankMultMod = .20,
+        suitMultMod = .25,
+        ranks = { 0 },
+        suits = { 0 }
+    }},
+    blueprint_compat = true,
+
+    loc_vars = function(self,info_queue,card)
+        return {vars = {
+            card.ability.extra.rankMultMod,
+            card.ability.extra.suitMultMod,
+            1 + ((#card.ability.extra.ranks - 1) * card.ability.extra.rankMultMod),
+            1 + ((#card.ability.extra.suits - 1) * card.ability.extra.suitMultMod)
+        }}
+    end,
+    
+    calculate = function(self,card,context)
+        if context.before and context.cardarea == G.jokers and not context.blueprint then
+            for i,v in ipairs(context.scoring_hand) do 
+                local current_rank = v.base.id
+                local current_suit = v.base.suit
+                for h,k in ipairs(card.ability.extra.ranks) do
+                    if card.ability.extra.ranks[h] == current_rank then break
+                    elseif card.ability.extra.ranks[h] == 0 and not SMODS.has_no_rank(v) then 
+                        table.insert(card.ability.extra.ranks, current_rank)
+                        table.remove(card.ability.extra.ranks, h)
+                        table.insert(card.ability.extra.ranks, 0)
+                        break
+                    end
+                end
+                for h,k in ipairs(card.ability.extra.suits) do
+                    if card.ability.extra.suits[h] == current_suit then break
+                    elseif card.ability.extra.suits[h] == 0 and not SMODS.has_no_suit(v) then 
+                        table.insert(card.ability.extra.suits, current_suit)
+                        table.remove(card.ability.extra.suits, h)
+                        table.insert(card.ability.extra.suits, 0)
+                        break
+                    end
+                end
+            end
+        end
+        if context.joker_main then
+            SMODS.calculate_effect({
+                x_mult = 1 + ((#card.ability.extra.ranks - 1) * card.ability.extra.rankMultMod)
+            },card)
+            SMODS.calculate_effect({
+                x_mult = 1 + ((#card.ability.extra.suits - 1) * card.ability.extra.suitMultMod)
+            },card)
+        end
+        if context.end_of_round and context.cardarea==G.jokers and not context.blueprint then
+            card.ability.extra.ranks = { 0 }
+            card.ability.extra.suits = { 0 }
+            return {
+                message = localize('k_reset')
+            }
+        end
+    end
+}
+
+SMODS.Joker{
+    key = 'dclussie',
+    atlas = 'Jokers',
+    pos = {x = 5, y = 2},
+    soul_pos = {x = 6, y = 2},
+    rarity = 4,
+    cost = 20,
+    config = {extra = {
+        odds = 4,
+        minus_ante = -1
+    }},
+    blueprint_compat = false,
+
+    loc_vars = function(self,info_queue,card)
+        return {vars = {
+            card.ability.extra.odds * G.GAME.probabilities.normal,
+            card.ability.extra.minus_ante
+        }}
+    end,
+    
+    calculate = function(self,card,context)
+        if context.end_of_round and G.GAME.blind.boss and not context.repetition and not context.individual and not context.blueprint then
+            if pseudorandom('dclussie'..G.GAME.round_resets.ante) <= (card.ability.extra.odds * G.GAME.probabilities.normal) / 13 then
+                ease_ante(card.ability.extra.minus_ante)
+                return {
+                    message = 'Retconned!'
+                }
+            end
+        end
+    end
+}

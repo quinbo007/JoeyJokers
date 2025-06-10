@@ -3,7 +3,7 @@
 --- MOD_ID: JoeyJokers
 --- MOD_AUTHOR: [Joey]
 --- MOD_DESCRIPTION: Another vanilla-ish content mod. Adds X jokers.
---- BADGE_COLOUR: 1d6e22
+--- BADGE_COLOUR: 26d454
 --- DISPLAY_NAME: JoeyJokers
 --- PREFIX: joey
 --- VERSION: 1.0.0
@@ -22,6 +22,23 @@ SMODS.Atlas {
     px = 71,
     py = 95
 }
+
+SMODS.Atlas {
+    key = "Loot",
+    path = "Loot.png",
+    px = 71,
+    py = 95
+}
+
+SMODS.Atlas {
+    key = "Decks",
+    path = "Decks.png",
+    px = 71,
+    py = 95
+}
+
+G.C.JOEY_LOOT = HEX('999999')
+G.PROFILES[G.SETTINGS.profile].successorTokens = G.PROFILES[G.SETTINGS.profile].successorTokens or 1
 
 getrankname = function(id)
     if id == 14 then return ('Ace')
@@ -52,6 +69,8 @@ function SMODS.current_mod.reset_game_globals(run_start)
     end
 
     G.GAME.current_round.zhen_hands = G.GAME.current_round.hands_left
+
+    G.GAME.lootPlays.current = G.GAME.lootPlays.normal
 end
 
 SMODS.Joker {
@@ -1226,3 +1245,164 @@ SMODS.Joker{
         end
     end
 }
+
+-- Loot
+
+local lootIgo = Game.init_game_object
+function Game:init_game_object()
+	local ret = lootIgo(self)
+	ret.lootPlays = {
+        current = 1,
+        normal = 1,
+        usedThisRun = 0
+    }
+	return ret
+end
+
+function joeyUseLoot(lootcard)
+    G.GAME.lootPlays.current = G.GAME.lootPlays.current - 1
+    lootcard.ability.extra.uses = lootcard.ability.extra.uses - 1
+    G.GAME.lootPlays.usedThisRun = G.GAME.lootPlays.usedThisRun + 1
+end
+
+SMODS.ConsumableType{
+    key = 'Loot',
+    primary_colour = G.C.JOEY_LOOT,
+    secondary_colour = G.C.JOEY_LOOT,
+    loc_txt = {
+        name = 'Loot Card',
+        collection = 'Loot Cards',
+        undiscovered = {
+            name = 'Loot Card',
+            text = {
+                'Find this in a run',
+                'to see what it does'
+            }
+        }
+    },
+    collection_rows = { 2 }
+}
+
+SMODS.Consumable{
+    key = 'soulheart',
+    set = 'Loot',
+    atlas = 'Loot',
+    pos = {x = 1, y = 0},
+    config = {extra = { 
+        uses = 2
+        }
+    },
+
+    loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue + 1] = {key = 'joey_info_loot', set = 'Other', specific_vars = {G.GAME.lootPlays.normal} }
+        return { 
+            vars = {card.ability.extra.uses}
+        }
+    end,
+
+    can_use = function(self, card)
+        if G.GAME.blind.in_blind then
+            if G.GAME.lootPlays.current > 0 then
+                return true
+            end
+        end
+    end,
+
+    use = function(self,card,area)
+        G.E_MANAGER:add_event(Event({func = function()
+            ease_hands_played(1)
+            card_eval_status_text(card, 'extra', nil, nil, nil, {message = localize{type = 'variable', key = 'a_hands', vars = {1}}})
+        return true end }))
+        joeyUseLoot(card)
+    end,
+
+    keep_on_use = function(self, card)
+        if card.ability.extra.uses > 1 then
+            return true
+        end
+    end
+}
+
+SMODS.Consumable{
+    key = 'diceshard',
+    set = 'Loot',
+    atlas = 'Loot',
+    pos = {x = 0, y = 0},
+    config = {extra = { 
+        uses = 2
+        }
+    },
+
+    loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue + 1] = {key = 'joey_info_loot', set = 'Other', specific_vars = {G.GAME.lootPlays.normal} }
+        return { 
+            vars = {card.ability.extra.uses}
+        }
+    end,
+
+    can_use = function(self, card)
+        if G.GAME.blind.in_blind then
+            if G.GAME.lootPlays.current > 0 then
+                return true
+            end
+        end
+    end,
+
+    use = function(self,card,area)
+        G.E_MANAGER:add_event(Event({func = function()
+            ease_discard(1)
+            card_eval_status_text(card, 'extra', nil, nil, nil, {message = localize{type = 'variable', key = 'a_hands', vars = {1}}})
+        return true end }))
+        joeyUseLoot(card)
+    end,
+
+    keep_on_use = function(self, card)
+        if card.ability.extra.uses > 1 then
+            return true
+        end
+    end
+}
+
+-- Decks
+
+SMODS.Tag{
+    key = 'successor_reminder',
+    no_collection = true,
+    in_pool = function(self,args)
+        return false
+    end
+}
+
+SMODS.Back{
+    key = 'honkifex',
+    atlas = 'Decks',
+    pos = {x = 0, y = 0},
+    config = {winante = 11},
+
+    loc_vars = function(self,info_queue,card)
+        return { vars = {
+            self.config.winante,
+            G.PROFILES[G.SETTINGS.profile].successorTokens
+            }
+        }
+    end,
+
+    apply = function(self,back)
+        G.GAME.win_ante = 11
+        G.PROFILES[G.SETTINGS.profile].successorTokens = G.PROFILES[G.SETTINGS.profile].successorTokens - 1
+        G.E_MANAGER:add_event(Event({func = function()
+            local legendary = create_card('Joker', G.jokers, true, 4, nil, nil, nil, 'honk')
+            legendary:add_to_deck()
+            G.jokers:emplace(legendary)
+            legendary:start_materialize()
+            G.GAME.joker_buffer = 0
+        return true end }))
+    end
+}
+
+local wingame = win_game
+function win_game()
+    G.PROFILES[G.SETTINGS.profile].successorTokens = G.PROFILES[G.SETTINGS.profile].successorTokens + 1
+	local ret = wingame(self)
+	return ret
+end

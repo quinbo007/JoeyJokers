@@ -55,3 +55,51 @@ end
 '''
 match_indent = true
 times = 1
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''
+G.FUNCS.can_start_run = function(e)
+    if not G.GAME.viewed_back.effect.center.unlocked then 
+        e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+        e.config.button = nil
+    else
+        e.config.colour = G.C.BLUE
+        e.config.button = 'start_setup_run'
+    end
+  end
+'''
+position = "at"
+payload = '''
+G.FUNCS.can_start_run = function(e)
+    local selectable = true
+    if not G.GAME.viewed_back.effect.center.unlocked then 
+        selectable = false
+    elseif G.GAME.viewed_back.name == 'b_joey_honkifex' then
+        if G.PROFILES[G.SETTINGS.profile].successorTokens <= 0 then
+            selectable = false
+        end
+    end
+    if selectable then
+        e.config.colour = G.C.BLUE
+        e.config.button = 'start_setup_run'
+    else
+        e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+        e.config.button = nil
+    end
+end
+'''
+match_indent = true
+times = 1
+
+[[patches]]
+[patches.pattern]
+target = "engine/controller.lua"
+pattern = 'if key == "r" and not G.SETTINGS.paused then'
+position = "after"
+payload = '''
+if G.GAME.selected_back.name == 'b_joey_honkifex' and G.PROFILES[G.SETTINGS.profile].successorTokens <= 0 then return end
+'''
+match_indent = true
+times = 1

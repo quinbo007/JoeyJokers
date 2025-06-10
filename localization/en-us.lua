@@ -1,5 +1,16 @@
 return {
     descriptions = {
+        Back = {
+            b_joey_honkifex = {
+                name = 'Honkifex Deck',
+                text = {
+                    'Starts with a random',
+                    '{C:legendary,E:1}Legendary{} Joker,',
+                    'final Ante is {C:attention}Ante #1#',
+                    '{C:dark_edition,T:tag_joey_successor_reminder}Succesor Tokens: #2#'
+                }
+            }
+        },
         Enhanced = {
             m_joey_joculinewild = {
                 name = 'Wild Card',
@@ -189,6 +200,33 @@ return {
                 }
             }
         },
+        Loot = {
+            c_joey_soulheart = {
+                name = 'Soul Heart',
+                text = {
+                    '{C:blue}+1{} Hand',
+                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} uses left)'
+                }
+            },
+            c_joey_diceshard = {
+                name = 'Dice Shard',
+                text = {
+                    '{C:red}+1{} Discard',
+                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} uses left)'
+                }
+            }
+        },
+        Tag = {
+            tag_joey_successor_reminder = {
+                name = 'Successor Tokens',
+                text = {
+                    'One is awarded upon',
+                    'winning a run, and',
+                    'one must be spent',
+                    'to play this deck'
+                }
+            }
+        },
         Other = {
             joey_credit_conboi = {
                 name = 'Credits',
@@ -196,13 +234,22 @@ return {
                     'Art and effect',
                     'by Conboi'
                 }
-            }
+            },
+            joey_info_loot = {
+                name = 'Loot Card',
+                text = {
+                    'You may use {C:attention}#1#',
+                    'Loot Card(s)',
+                    'each round'
+                }
+            },
         }
     },
     misc = {
         v_dictionary = {
             joey_retcon = 'Retconned!',
-            joey_converted = 'Converted!'
+            joey_converted = 'Converted!',
+            joey_betrayed = 'Betrayed!'
         }
     }
 }

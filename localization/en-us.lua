@@ -205,14 +205,82 @@ return {
                 name = 'Soul Heart',
                 text = {
                     '{C:blue}+1{} Hand',
-                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} uses left)'
+                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} #2# left)'
                 }
             },
             c_joey_diceshard = {
                 name = 'Dice Shard',
                 text = {
                     '{C:red}+1{} Discard',
-                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} uses left)'
+                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} #2# left)'
+                }
+            },
+            c_joey_2cents = {
+                name = '2 Cents',
+                text = {
+                    'Earn {C:money}$2',
+                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} #2# left)'
+                }
+            },
+            c_joey_3cents = {
+                name = '3 Cents',
+                text = {
+                    'Earn {C:money}$3',
+                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} #2# left)'
+                }
+            },
+            c_joey_stickynickel = {
+                name = 'Sticky Nickel',
+                text = {
+                    '{C:green}#3# in 2{} chance',
+                    'to earn {C:money}$5',
+                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} #2# left)'
+                }
+            },
+            c_joey_dime = {
+                name = 'Dime',
+                text = {
+                    'Earn {C:money}$10{} when this',
+                    'runs out of {C:attention}Uses',
+                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} #2# left)'
+                }
+            },
+            c_joey_goldbomb = {
+                name = 'Gold Bomb',
+                text = {
+                    '{X:mult,C:white}X#3#{} Mult',
+                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} #2# left)'
+                }
+            },
+            c_joey_megabomb = {
+                name = 'Mega Bomb',
+                text = {
+                    '{X:mult,C:white}X#3#{} Mult',
+                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} #2# left)'
+                }
+            },
+            c_joey_bomb = {
+                name = 'Bomb',
+                text = {
+                    '{X:mult,C:white}X#3#{} Mult',
+                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} #2# left)'
+                }
+            },
+            c_joey_key = {
+                name = 'Key',
+                text = {
+                    'Create a {C:attention}Temporary',
+                    '{C:attention}Double Tag',
+                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} #2# left)'
+                }
+            },
+            c_joey_sack = {
+                name = 'Sack',
+                text = {
+                    'Create a random Consumable',
+                    '{C:inactive}({C:tarot}Tarot, {C:planet}Planet,',
+                    '{C:spectral}Spectral{C:inactive}, or {V:1}Loot{C:inactive})',
+                    '{C:inactive,s:0.7}({C:attention,s:0.7}#1#{C:inactive,s:0.7} #2# left)'
                 }
             }
         },
@@ -225,7 +293,16 @@ return {
                     'one must be spent',
                     'to play this deck'
                 }
-            }
+            },
+            tag_joey_temp_double={
+                name = "Temp. Double Tag",
+                text = {
+                    "Gives a copy of the",
+                    "next selected {C:attention}Tag{}",
+                    "{s:0.8,C:inactive}(removed when blind",
+                    "{s:0.8,C:inactive}is selected)"
+                },
+            },
         },
         Other = {
             joey_credit_conboi = {
@@ -238,14 +315,48 @@ return {
             joey_info_loot = {
                 name = 'Loot Card',
                 text = {
-                    'You may use {C:attention}#1#',
-                    'Loot Card(s)',
-                    'each round'
+                    'Loot cards occupy half',
+                    'of a consumable slot.',
+                    'You may use {C:attention}#1# {}Loot',
+                    'Card(s) each round'
+                }
+            },
+            p_joey_lootpack1 = {
+                name = 'Loot Pack',
+                text = {
+                    'Choose up to {C:attention}#2#',
+                    'of {C:attention}#1#{} Loot Cards'
+                }
+            },
+            p_joey_lootpack2 = {
+                name = 'Loot Pack',
+                text = {
+                    'Choose up to {C:attention}#2#',
+                    'of {C:attention}#1#{} Loot Cards'
+                }
+            },
+            p_joey_jumbolootpack = {
+                name = 'Jumbo Loot Pack',
+                text = {
+                    'Choose up to {C:attention}#2#',
+                    'of {C:attention}#1#{} Loot Cards'
+                }
+            },
+            p_joey_megalootpack = {
+                name = 'Mega Loot Pack',
+                text = {
+                    'Choose up to {C:attention}#2#',
+                    'of {C:attention}#1#{} Loot Cards'
                 }
             },
         }
     },
     misc = {
+        dictionary = {
+            k_joey_lootpack = 'Loot Pack',
+            k_joey_jumbolootpack = 'Jumbo Loot Pack',
+            k_joey_megalootpack = 'Mega Loot Pack'
+        },
         v_dictionary = {
             joey_retcon = 'Retconned!',
             joey_converted = 'Converted!',

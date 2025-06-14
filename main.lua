@@ -37,7 +37,22 @@ SMODS.Atlas {
     py = 95
 }
 
+SMODS.Atlas {
+    key = "Tags",
+    path = "Tags.png",
+    px = 34,
+    py = 34
+}
+
+SMODS.Atlas {
+    key = "Boosters",
+    path = "boosters.png",
+    px = 71,
+    py = 95
+}
+
 G.C.JOEY_LOOT = HEX('999999')
+
 G.PROFILES[G.SETTINGS.profile].successorTokens = G.PROFILES[G.SETTINGS.profile].successorTokens or 1
 
 getrankname = function(id)
@@ -1265,6 +1280,30 @@ function joeyUseLoot(lootcard)
     G.GAME.lootPlays.usedThisRun = G.GAME.lootPlays.usedThisRun + 1
 end
 
+function joeyUseLootDelay(lootcard)
+    if lootcard.ability.extra.uses <= 0 then
+        G.E_MANAGER:add_event(Event({
+            func = function()
+                play_sound('tarot1')
+                lootcard.T.r = -0.2
+                lootcard:juice_up(0.3, 0.4)
+                lootcard.states.drag.is = true
+                lootcard.children.center.pinch.x = true
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.3,
+                    blockable = false,
+                    func = function()
+                        lootcard:remove()
+                        lootcard = nil
+                        return true;
+                    end
+                }))
+            return true
+        end}))
+    end
+end
+
 SMODS.ConsumableType{
     key = 'Loot',
     primary_colour = G.C.JOEY_LOOT,
@@ -1280,7 +1319,7 @@ SMODS.ConsumableType{
             }
         }
     },
-    collection_rows = { 2 }
+    collection_rows = { 6,6 }
 }
 
 SMODS.Consumable{
@@ -1295,9 +1334,21 @@ SMODS.Consumable{
 
     loc_vars = function(self,info_queue,card)
         info_queue[#info_queue + 1] = {key = 'joey_info_loot', set = 'Other', specific_vars = {G.GAME.lootPlays.normal} }
+        local usesWord = 'uses'
+        if card.ability.extra.uses == 1 then
+            usesWord = 'use'
+        end
         return { 
-            vars = {card.ability.extra.uses}
+            vars = {card.ability.extra.uses, usesWord}
         }
+    end,
+
+    add_to_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit + 0.5
+    end,
+
+    remove_from_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit - 0.5
     end,
 
     can_use = function(self, card)
@@ -1335,9 +1386,21 @@ SMODS.Consumable{
 
     loc_vars = function(self,info_queue,card)
         info_queue[#info_queue + 1] = {key = 'joey_info_loot', set = 'Other', specific_vars = {G.GAME.lootPlays.normal} }
+        local usesWord = 'uses'
+        if card.ability.extra.uses == 1 then
+            usesWord = 'use'
+        end
         return { 
-            vars = {card.ability.extra.uses}
+            vars = {card.ability.extra.uses, usesWord}
         }
+    end,
+
+    add_to_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit + 0.5
+    end,
+
+    remove_from_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit - 0.5
     end,
 
     can_use = function(self, card)
@@ -1360,6 +1423,725 @@ SMODS.Consumable{
         if card.ability.extra.uses > 1 then
             return true
         end
+    end
+}
+
+SMODS.Consumable{
+    key = '2cents',
+    set = 'Loot',
+    atlas = 'Loot',
+    pos = {x = 3, y = 0},
+    config = {extra = { 
+        uses = 5
+        }
+    },
+
+    loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue + 1] = {key = 'joey_info_loot', set = 'Other', specific_vars = {G.GAME.lootPlays.normal} }
+        local usesWord = 'uses'
+        if card.ability.extra.uses == 1 then
+            usesWord = 'use'
+        end
+        return { 
+            vars = {card.ability.extra.uses, usesWord}
+        }
+    end,    
+
+    add_to_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit + 0.5
+    end,
+
+    remove_from_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit - 0.5
+    end,
+
+    can_use = function(self, card)
+        if G.GAME.lootPlays.current > 0 then
+            return true
+        end
+    end,
+
+    use = function(self,card,area)
+        ease_dollars(2)
+        joeyUseLoot(card)
+    end,
+
+    keep_on_use = function(self, card)
+        if card.ability.extra.uses > 1 then
+            return true
+        end
+    end
+}
+
+SMODS.Consumable{
+    key = '3cents',
+    set = 'Loot',
+    atlas = 'Loot',
+    pos = {x = 4, y = 0},
+    config = {extra = { 
+        uses = 3
+        }
+    },
+
+    loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue + 1] = {key = 'joey_info_loot', set = 'Other', specific_vars = {G.GAME.lootPlays.normal} }
+        local usesWord = 'uses'
+        if card.ability.extra.uses == 1 then
+            usesWord = 'use'
+        end
+        return { 
+            vars = {card.ability.extra.uses, usesWord}
+        }
+    end,    
+    
+    add_to_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit + 0.5
+    end,
+
+    remove_from_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit - 0.5
+    end,
+
+    can_use = function(self, card)
+        if G.GAME.lootPlays.current > 0 then
+            return true
+        end
+    end,
+
+    use = function(self,card,area)
+        ease_dollars(3)
+        joeyUseLoot(card)
+    end,
+
+    keep_on_use = function(self, card)
+        if card.ability.extra.uses > 1 then
+            return true
+        end
+    end
+}
+
+SMODS.Consumable{
+    key = 'stickynickel',
+    set = 'Loot',
+    atlas = 'Loot',
+    pos = {x = 2, y = 0},
+    config = {extra = { 
+        uses = 3
+        }
+    },
+
+    loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue + 1] = {key = 'joey_info_loot', set = 'Other', specific_vars = {G.GAME.lootPlays.normal} }
+        local usesWord = 'uses'
+        if card.ability.extra.uses == 1 then
+            usesWord = 'use'
+        end
+        return { 
+            vars = {card.ability.extra.uses, usesWord, G.GAME.probabilities.normal}
+        }
+    end,    
+    
+    add_to_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit + 0.5
+    end,
+
+    remove_from_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit - 0.5
+    end,
+
+    can_use = function(self, card)
+        if G.GAME.lootPlays.current > 0 then
+            return true
+        end
+    end,
+
+    use = function(self,card,area)
+        if pseudorandom('nickel'..G.GAME.round_resets.ante) <= G.GAME.probabilities.normal / 2 then
+            ease_dollars(5)
+        else
+            card_eval_status_text(card, 'extra', nil, nil, nil, {message = localize('k_nope_ex'), colour = G.C.RED})
+        end
+        joeyUseLoot(card)
+    end,
+
+    keep_on_use = function(self, card)
+        if card.ability.extra.uses > 1 then
+            return true
+        end
+    end
+}
+
+SMODS.Consumable{
+    key = 'dime',
+    set = 'Loot',
+    atlas = 'Loot',
+    pos = {x = 9, y = 0},
+    config = {extra = { 
+        uses = 2
+        }
+    },
+
+    loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue + 1] = {key = 'joey_info_loot', set = 'Other', specific_vars = {G.GAME.lootPlays.normal} }
+        local usesWord = 'uses'
+        if card.ability.extra.uses == 1 then
+            usesWord = 'use'
+        end
+        return { 
+            vars = {card.ability.extra.uses, usesWord}
+        }
+    end,    
+    
+    add_to_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit + 0.5
+    end,
+
+    remove_from_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit - 0.5
+    end,
+
+    can_use = function(self, card)
+        if G.GAME.lootPlays.current > 0 then
+            return true
+        end
+    end,
+
+    use = function(self,card,area)
+        if card.ability.extra.uses == 1 then
+            ease_dollars(10)
+        end
+        joeyUseLoot(card)
+    end,
+
+    keep_on_use = function(self, card)
+        if card.ability.extra.uses > 1 then
+            return true
+        end
+    end
+}
+
+SMODS.Consumable{
+    key = 'bomb',
+    set = 'Loot',
+    atlas = 'Loot',
+    pos = {x = 5, y = 0},
+    config = {extra = { 
+        uses = 4,
+        mult = 1.5,
+        activations = 0
+        }
+    },
+
+    loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue + 1] = {key = 'joey_info_loot', set = 'Other', specific_vars = {G.GAME.lootPlays.normal} }
+        local usesWord = 'uses'
+        if card.ability.extra.uses == 1 then
+            usesWord = 'use'
+        end
+        return { 
+            vars = {card.ability.extra.uses, usesWord, card.ability.extra.mult}
+        }
+    end,    
+    
+    add_to_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit + 0.5
+    end,
+
+    remove_from_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit - 0.5
+    end,
+
+    can_use = function(self, card)
+        if G.GAME.blind.in_blind then
+            if G.GAME.lootPlays.current > 0 and card.ability.extra.uses > 0 then
+                return true
+            end
+        end
+    end,
+
+    use = function(self,card,area)
+        card.ability.extra.activations = card.ability.extra.activations + 1
+        local eval = function() return card.ability.extra.activations > 0 end
+        juice_card_until(card, eval, true)
+        card_eval_status_text(card, 'extra', nil, nil, nil, {message = 'Ready!', colour = G.C.RED})
+        joeyUseLoot(card)
+    end,
+
+    calculate = function(self,card,context)
+        if context.joker_main and card.ability.extra.activations > 0 then
+            while card.ability.extra.activations > 0 do
+                SMODS.calculate_effect({
+                    x_mult = card.ability.extra.mult
+                },card)
+                card.ability.extra.activations = card.ability.extra.activations - 1
+                joeyUseLootDelay(card)
+            end
+        end
+        if context.after then
+            joeyUseLootDelay(card)
+        end
+    end,
+
+    keep_on_use = function(self, card)
+        return true
+    end
+}
+
+SMODS.Consumable{
+    key = 'megabomb',
+    set = 'Loot',
+    atlas = 'Loot',
+    pos = {x = 6, y = 0},
+    config = {extra = { 
+        uses = 2,
+        mult = 2,
+        activations = 0
+        }
+    },
+
+    loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue + 1] = {key = 'joey_info_loot', set = 'Other', specific_vars = {G.GAME.lootPlays.normal} }
+        local usesWord = 'uses'
+        if card.ability.extra.uses == 1 then
+            usesWord = 'use'
+        end
+        return { 
+            vars = {card.ability.extra.uses, usesWord, card.ability.extra.mult}
+        }
+    end,    
+    
+    add_to_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit + 0.5
+    end,
+
+    remove_from_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit - 0.5
+    end,
+
+    in_pool = function(self,args)
+        if pseudorandom('goldbomb'..G.GAME.round_resets.ante) <= 0.5 then
+            return true
+        end
+    end,
+
+    can_use = function(self, card)
+        if G.GAME.blind.in_blind then
+            if G.GAME.lootPlays.current > 0 and card.ability.extra.uses > 0 then
+                return true
+            end
+        end
+    end,
+
+    use = function(self,card,area)
+        card.ability.extra.activations = card.ability.extra.activations + 1
+        local eval = function() return card.ability.extra.activations > 0 end
+        juice_card_until(card, eval, true)
+        card_eval_status_text(card, 'extra', nil, nil, nil, {message = 'Ready!', colour = G.C.RED})
+        joeyUseLoot(card)
+    end,
+
+    calculate = function(self,card,context)
+        if context.joker_main and card.ability.extra.activations > 0 then
+            while card.ability.extra.activations > 0 do
+                SMODS.calculate_effect({
+                    x_mult = card.ability.extra.mult
+                },card)
+                card.ability.extra.activations = card.ability.extra.activations - 1
+                joeyUseLootDelay(card)
+            end
+        end
+        if context.after then
+            joeyUseLootDelay(card)
+        end
+    end,
+
+    keep_on_use = function(self, card)
+        return true
+    end
+}
+
+SMODS.Consumable{
+    key = 'goldbomb',
+    set = 'Loot',
+    atlas = 'Loot',
+    pos = {x = 7, y = 0},
+    config = {extra = { 
+        uses = 1,
+        mult = 3,
+        activations = 0
+        }
+    },
+
+    loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue + 1] = {key = 'joey_info_loot', set = 'Other', specific_vars = {G.GAME.lootPlays.normal} }
+        local usesWord = 'uses'
+        if card.ability.extra.uses == 1 then
+            usesWord = 'use'
+        end
+        return { 
+            vars = {card.ability.extra.uses, usesWord, card.ability.extra.mult}
+        }
+    end,    
+    
+    add_to_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit + 0.5
+    end,
+
+    remove_from_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit - 0.5
+    end,
+
+    can_use = function(self, card)
+        if G.GAME.blind.in_blind then
+            if G.GAME.lootPlays.current > 0 and card.ability.extra.uses > 0 then
+                return true
+            end
+        end
+    end,
+
+    in_pool = function(self,args)
+        if pseudorandom('goldbomb'..G.GAME.round_resets.ante) <= 0.5 then
+            return true
+        end
+    end,
+
+    use = function(self,card,area)
+        card.ability.extra.activations = card.ability.extra.activations + 1
+        local eval = function() return card.ability.extra.activations > 0 end
+        juice_card_until(card, eval, true)
+        card_eval_status_text(card, 'extra', nil, nil, nil, {message = 'Ready!', colour = G.C.RED})
+        joeyUseLoot(card)
+    end,
+
+    calculate = function(self,card,context)
+        if context.joker_main and card.ability.extra.activations > 0 then
+            while card.ability.extra.activations > 0 do
+                SMODS.calculate_effect({
+                    x_mult = card.ability.extra.mult
+                },card)
+                card.ability.extra.activations = card.ability.extra.activations - 1
+                joeyUseLootDelay(card)
+            end
+        end
+        if context.after then
+            joeyUseLootDelay(card)
+        end
+    end,
+
+    keep_on_use = function(self, card)
+        return true
+    end
+}
+
+SMODS.Consumable{
+    key = 'key',
+    set = 'Loot',
+    atlas = 'Loot',
+    pos = {x = 8, y = 0},
+    config = {extra = { 
+        uses = 2
+        }
+    },
+
+    loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue + 1] = {key = 'joey_info_loot', set = 'Other', specific_vars = {G.GAME.lootPlays.normal} }
+        local usesWord = 'uses'
+        if card.ability.extra.uses == 1 then
+            usesWord = 'use'
+        end
+        return { 
+            vars = {card.ability.extra.uses, usesWord, G.GAME.probabilities.normal}
+        }
+    end,    
+    
+    add_to_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit + 0.5
+    end,
+
+    remove_from_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit - 0.5
+    end,
+
+    can_use = function(self, card)
+        if G.GAME.lootPlays.current > 0 then
+            return true
+        end
+    end,
+
+    use = function(self,card,area)
+        add_tag(Tag('tag_joey_temp_double'))
+        joeyUseLoot(card)
+    end,
+
+    keep_on_use = function(self, card)
+        if card.ability.extra.uses > 1 then
+            return true
+        end
+    end
+}
+
+SMODS.Consumable{
+    key = 'sack',
+    set = 'Loot',
+    atlas = 'Loot',
+    pos = {x = 0, y = 1},
+    config = {extra = { 
+        uses = 2
+        }
+    },
+
+    loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue + 1] = {key = 'joey_info_loot', set = 'Other', specific_vars = {G.GAME.lootPlays.normal} }
+        local usesWord = 'uses'
+        if card.ability.extra.uses == 1 then
+            usesWord = 'use'
+        end
+        return { 
+            vars = {card.ability.extra.uses, usesWord, G.GAME.probabilities.normal, colours = {G.C.JOEY_LOOT}}
+        }
+    end,    
+    
+    add_to_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit + 0.5
+    end,
+
+    remove_from_deck = function(self,card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit - 0.5
+    end,
+
+    can_use = function(self, card)
+        if G.GAME.lootPlays.current < 0 then
+            return false 
+        elseif #G.consumeables.cards >= G.consumeables.config.card_limit then
+            return false
+        else return true
+        end
+    end,
+
+    use = function(self,card,area)
+        if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+            local choice = ''
+            if #G.consumeables.cards + G.GAME.consumeable_buffer == G.consumeables.config.card_limit - 0.5 then
+                choice = 'Loot'
+            else
+                local roll = 20 * pseudorandom('sack'..G.GAME.round_resets.ante)
+                if roll < 6 then choice = 'Loot'
+                elseif roll < 12 then choice = 'Tarot'
+                elseif roll < 18 then choice = 'Planet'
+                elseif roll <= 20 then choice = 'Spectral'
+                end
+                print(choice)
+            end
+        G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
+                play_sound('timpani')
+                local madeCard = create_card((choice), G.consumeables, nil, nil, nil, nil, nil, 'loot')
+                madeCard:add_to_deck()
+                G.consumeables:emplace(madeCard)
+                card:juice_up(0.3, 0.5)
+            return true end }))
+        end
+        joeyUseLoot(card)
+    end,
+
+    keep_on_use = function(self, card)
+        if card.ability.extra.uses > 1 then
+            return true
+        end
+    end
+}
+
+-- Tags
+
+--Taken from Bunco's Triple Tag
+SMODS.Tag{ 
+    key = 'temp_double',
+    config = {type = 'tag_add'},
+    atlas = 'Tags',
+    pos = { x = 0, y = 0 },
+
+    apply = function(self, tag, context)
+        if context.type == self.config.type and context.tag.key ~= 'tag_double' and context.tag.key ~= 'tag_bunc_triple' then
+            G.CONTROLLER.locks[tag.ID] = true
+            tag:yep('+', G.C.BLUE, function()
+                if context.tag.ability and context.tag.ability.orbital_hand then
+                    G.orbital_hand = context.tag.ability.orbital_hand
+                end
+                add_tag(Tag(context.tag.key))
+                G.orbital_hand = nil
+                G.CONTROLLER.locks[tag.ID] = nil
+                return true
+            end)
+            tag.triggered = true
+            return true
+        elseif context.type == 'round_start_bonus' then
+            tag:yep('',G.C.BLUE, function()
+                return true
+            end)
+        end
+    end,
+
+    in_pool = function() return false end
+}
+
+-- Boosters
+
+SMODS.Booster{
+    key = 'lootpack1',
+    atlas = 'Boosters',
+    pos = { x = 0, y = 0 },
+    config = { extra = 3, choose = 2},
+    cost = 4,
+    weight = 0.5,
+    select_card = 'consumeables',
+    group_key = 'k_joey_lootpack',
+
+    loc_vars = function(self,info_queue,card)
+        return{vars = {card.ability.extra,card.ability.choose}}
+    end,
+
+    create_card = function(self,card,i)
+        return create_card('Loot', G.pack_cards, nil, nil, true, true, nil, 'loot')
+    end,
+
+    particles = function(self)
+        G.booster_pack_sparkles = Particles(1, 1, 0,0, {
+            timer = 0.015,
+            scale = 0.2,
+            initialize = true,
+            lifespan = 1,
+            speed = 1.1,
+            padding = -1,
+            attach = G.ROOM_ATTACH,
+            colours = {G.C.WHITE, G.C.BLACK, G.C.JOEY_LOOT},
+            fill = true
+        })
+        G.booster_pack_sparkles.fade_alpha = 1
+        G.booster_pack_sparkles:fade(1, 0)
+    end,
+
+    ease_background_colour = function(self)
+        ease_colour(G.C.DYN_UI.MAIN, G.C.JOEY_LOOT)
+        ease_background_colour{new_colour = HEX('afafbd'), special_colour = HEX('4a757d'), contrast = 2}
+    end
+}
+
+SMODS.Booster{
+    key = 'lootpack2',
+    atlas = 'Boosters',
+    pos = { x = 1, y = 0 },
+    config = { extra = 3, choose = 2},
+    cost = 4,
+    weight = 0.5,
+    select_card = 'consumeables',
+    group_key = 'k_joey_lootpack',
+
+    loc_vars = function(self,info_queue,card)
+        return{vars = {card.ability.extra,card.ability.choose}}
+    end,
+
+    create_card = function(self,card,i)
+        return create_card('Loot', G.pack_cards, nil, nil, true, true, nil, 'loot')
+    end,
+
+    particles = function(self)
+        G.booster_pack_sparkles = Particles(1, 1, 0,0, {
+            timer = 0.015,
+            scale = 0.2,
+            initialize = true,
+            lifespan = 1,
+            speed = 1.1,
+            padding = -1,
+            attach = G.ROOM_ATTACH,
+            colours = {G.C.WHITE, G.C.BLACK, G.C.JOEY_LOOT},
+            fill = true
+        })
+        G.booster_pack_sparkles.fade_alpha = 1
+        G.booster_pack_sparkles:fade(1, 0)
+    end,
+
+    ease_background_colour = function(self)
+        ease_colour(G.C.DYN_UI.MAIN, G.C.JOEY_LOOT)
+        ease_background_colour{new_colour = HEX('afafbd'), special_colour = HEX('4a757d'), contrast = 2}
+    end
+}
+
+SMODS.Booster{
+    key = 'jumbolootpack',
+    atlas = 'Boosters',
+    pos = { x = 2, y = 0 },
+    config = { extra = 5, choose = 3},
+    cost = 6,
+    weight = 0.25,
+    select_card = 'consumeables',
+    group_key = 'k_joey_jumbolootpack',
+
+    loc_vars = function(self,info_queue,card)
+        return{vars = {card.ability.extra,card.ability.choose}}
+    end,
+
+    create_card = function(self,card,i)
+        return create_card('Loot', G.pack_cards, nil, nil, true, true, nil, 'loot')
+    end,
+
+    particles = function(self)
+        G.booster_pack_sparkles = Particles(1, 1, 0,0, {
+            timer = 0.015,
+            scale = 0.2,
+            initialize = true,
+            lifespan = 1,
+            speed = 1.1,
+            padding = -1,
+            attach = G.ROOM_ATTACH,
+            colours = {G.C.WHITE, G.C.BLACK, G.C.JOEY_LOOT},
+            fill = true
+        })
+        G.booster_pack_sparkles.fade_alpha = 1
+        G.booster_pack_sparkles:fade(1, 0)
+    end,
+
+    ease_background_colour = function(self)
+        ease_colour(G.C.DYN_UI.MAIN, G.C.JOEY_LOOT)
+        ease_background_colour{new_colour = HEX('afafbd'), special_colour = HEX('4a757d'), contrast = 2}
+    end
+}
+
+SMODS.Booster{
+    key = 'megalootpack',
+    atlas = 'Boosters',
+    pos = { x = 3, y = 0 },
+    config = { extra = 6, choose = 4},
+    cost = 8,
+    weight = 0.125,
+    select_card = 'consumeables',
+    group_key = 'k_joey_lootpack',
+
+    loc_vars = function(self,info_queue,card)
+        return{vars = {card.ability.extra,card.ability.choose}}
+    end,
+
+    create_card = function(self,card,i)
+        return create_card('Loot', G.pack_cards, nil, nil, true, true, nil, 'loot')
+    end,
+
+    particles = function(self)
+        G.booster_pack_sparkles = Particles(1, 1, 0,0, {
+            timer = 0.015,
+            scale = 0.2,
+            initialize = true,
+            lifespan = 1,
+            speed = 1.1,
+            padding = -1,
+            attach = G.ROOM_ATTACH,
+            colours = {G.C.WHITE, G.C.BLACK, G.C.JOEY_LOOT},
+            fill = true
+        })
+        G.booster_pack_sparkles.fade_alpha = 1
+        G.booster_pack_sparkles:fade(1, 0)
+    end,
+
+    ease_background_colour = function(self)
+        ease_colour(G.C.DYN_UI.MAIN, G.C.JOEY_LOOT)
+        ease_background_colour{new_colour = HEX('afafbd'), special_colour = HEX('4a757d'), contrast = 2}
     end
 }
 

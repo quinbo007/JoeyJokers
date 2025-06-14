@@ -1845,6 +1845,7 @@ SMODS.Consumable{
 
     loc_vars = function(self,info_queue,card)
         info_queue[#info_queue + 1] = {key = 'joey_info_loot', set = 'Other', specific_vars = {G.GAME.lootPlays.normal} }
+        info_queue[#info_queue + 1] = G.P_TAGS.tag_joey_temp_double
         local usesWord = 'uses'
         if card.ability.extra.uses == 1 then
             usesWord = 'use'
@@ -1930,7 +1931,6 @@ SMODS.Consumable{
                 elseif roll < 18 then choice = 'Planet'
                 elseif roll <= 20 then choice = 'Spectral'
                 end
-                print(choice)
             end
         G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
                 play_sound('timpani')

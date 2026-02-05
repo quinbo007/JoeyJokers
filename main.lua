@@ -83,9 +83,22 @@ function SMODS.current_mod.reset_game_globals(run_start)
         end
     end
 
-    G.GAME.current_round.zhen_hands = G.GAME.current_round.hands_left
+    if G.GAME.round == 0 then G.GAME.current_round.zhen_hands = 0
+    else G.GAME.current_round.zhen_hands = G.GAME.current_round.hands_left
+    end
 
     G.GAME.lootPlays.current = G.GAME.lootPlays.normal
+
+    if not G.GAME.current_round.hazy_prev_chips then G.GAME.current_round.hazy_prev_chips = 0 end
+
+    if not G.GAME.current_round.hazy_active then G.GAME.current_round.hazy_active = false end 
+
+    if G.GAME.chips < G.GAME.current_round.hazy_prev_chips then
+        G.GAME.current_round.hazy_active = true
+    else
+        G.GAME.current_round.hazy_active = false
+    end
+    G.GAME.current_round.hazy_prev_chips = G.GAME.chips
 end
 
 SMODS.Joker {
@@ -374,14 +387,13 @@ SMODS.Joker{
     calculate = function(self, card, context)
         -- Decreases number of retriggers by the "loss" value (1) on discard 
         if context.discard and context.other_card == context.full_hand[#context.full_hand] and card.ability.extra.retriggers > 0 and not context.blueprint then
-            card.ability.extra.retriggers = card.ability.extra.retriggers - 1
-            if card.ability.extra.retriggers == 1 then
-                card.ability.extra.time = 'time'
-            else card.ability.extra.time = 'times'
+            card.ability.extra.retriggers = card.ability.extra.retriggers - card.ability.extra.loss
+            if card.ability.extra.retriggers < 0 then
+                card.ability.extra.retriggers = 0
             end
             return {
                 delay = 0.5,
-                message = '-'..(card.ability.extra.loss)..' retrigger',
+                message = 'Reset',
                 colour = G.C.RED
             }
         end
@@ -393,7 +405,7 @@ SMODS.Joker{
                 card = card
             }
         end
-        -- Increase number of retriggers by number of discards left at end of round. Currently bugged, each card in hand also increments the value for some reason
+        -- Increase number of retriggers by number of discards left at end of round.
         if context.end_of_round and context.cardarea == G.jokers and not context.blueprint and G.GAME.current_round.discards_left > 0 then
             local bonus = G.GAME.current_round.discards_left
             card.ability.extra.retriggers = card.ability.extra.retriggers + bonus
@@ -468,33 +480,25 @@ SMODS.Joker{
 
     calculate = function(self, card, context)
         if context.joker_main then
-        local suits = {
-            ['1'] = 0,
-            ['2'] = 0,
-            ['3'] = 0,
-            ['4'] = 0
-        }
+        local suits = {0}
         for i, v in ipairs(context.scoring_hand) do
             if context.scoring_hand[i].ability.name ~= 'Wild Card' and context.scoring_hand[i].ability.name ~= 'Stone Card' then
-                if suits['1'] == v.base.suit then break
-                elseif suits['1'] == 0 then suits['1'] = v.base.suit
-                elseif suits['2'] == v.base.suit then break
-                elseif suits['2'] == 0 then suits['2'] = v.base.suit
-                elseif suits['3'] == v.base.suit then break
-                elseif suits['3'] == 0 then suits['3'] = v.base.suit
-                elseif suits['4'] == v.base.suit then break
-                elseif suits['4'] == 0 then suits['4'] = v.base.suit
-                end 
-            end
-            if context.scoring_hand[i].ability.name == 'Wild Card' then
-                if suits['1'] == 0 then suits['1'] = 'Wild'
-                elseif suits['2'] == 0 then suits['2'] = 'Wild'
-                elseif suits['3'] == 0 then suits['3'] = 'Wild'
-                elseif suits['4'] == 0 then suits['4'] = 'Wild'
+                local current_suit = v.base.suit
+                for h,k in ipairs(suits) do
+                    if suits[h] == current_suit then break
+                    elseif suits[h] == 0 and context.scoring_hand[i].ability.name ~= 'Stone Card' then 
+                        table.insert(suits, current_suit)
+                        table.remove(suits, h)
+                        table.insert(suits, 0)
+                        break
+                    end
                 end
             end
+            if context.scoring_hand[i].ability.name == 'Wild Card' then
+                table.insert(suits, 'wild')
+            end
         end
-        if suits['1'] ~= 0 and suits['2'] ~= 0 and suits['3'] ~= 0 and suits['4'] ~= 0 and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+        if #suits > 3 and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
             G.E_MANAGER:add_event(Event({
                 func = function()
                     local card = create_card('Tarot',G.consumeables, nil, nil, nil, nil, 'c_fool', 'tet')
@@ -572,14 +576,6 @@ SMODS.Joker{
                 G.E_MANAGER:add_event(Event({
                     func = function()
                         local card = create_card('Planet',G.consumeables, nil, nil, nil, nil, nil, 'king')
-                        card:add_to_deck()
-                        G.consumeables:emplace(card)
-                        return true
-                    end
-                }))
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        local card = create_card('Planet',G.consumeables, nil, nil, nil, nil, nil, 'gila')
                         card:add_to_deck()
                         G.consumeables:emplace(card)
                         return true
@@ -736,7 +732,6 @@ SMODS.Joker{
     calculate = function(self,card,context)
         if context.joker_main then
             local sevencheck = false
-            -- lucky 7
             for i, v in ipairs(context.full_hand) do
                 if v.base.id == 7 and context.full_hand[i].ability.name == 'Lucky Card' then
                     sevencheck = true
@@ -770,7 +765,7 @@ SMODS.Joker{
     pos = {x = 3, y = 1},
     rarity = 1,
     config = {extra = {
-        bonus = 0.5,
+        bonus = 1,
         mult = 1
     }},
     cost = 5,
@@ -842,50 +837,34 @@ function Game:init_game_object()
 end
 
 SMODS.Joker{
-    key = 'hazy',
+    key = 'hazy2',
     atlas = 'Jokers',
     pos = {x = 6, y = 1},
     rarity = 1,
     config = {extra = {
-        multbonus = 4,
-        mult = 0,
-        scorereq = 2
+        cash = 6
     }},
     cost = 5,
     blueprint_compat = true,
-    perishable_compat = false,
+    eternal_compat = false,
 
     loc_vars = function(self,info_queue,card)
-        return {vars = {card.ability.extra.multbonus, card.ability.extra.mult, card.ability.extra.scorereq}}
+        return {vars = {G.GAME.current_round.hazy_prev_chips, card.ability.extra.cash}}
     end,
-    
-    calculate = function(self,card,context)
-        if context.first_hand_drawn then
-            card.ability.extra.mult = card.ability.extra.mult + card.ability.extra.multbonus
-            return {
-                message = "+"..card.ability.extra.mult..' Mult'
-            }
-        end
-        if context.joker_main then 
-            return { mult = card.ability.extra.mult }
-        end
-        if context.end_of_round and not context.blueprint and context.cardarea == G.jokers then
-            if G.GAME.chips >= G.GAME.blind.chips * card.ability.extra.scorereq then
-                card.ability.extra.mult = 0
-                return {
-                    message = "Could've been worse...",
-                    delay = 1
-                }
-            end
+
+    calc_dollar_bonus = function(self,card)
+        if G.GAME.current_round.hazy_active then
+            return card.ability.extra.cash
         end
     end
+
 }
 
 SMODS.Joker{
     key = 'economy',
     atlas = 'Jokers',
     pos = {x = 5, y = 1},
-    rarity = 2,
+    rarity = 1,
     config = {extra = {
         mult = 1
     }},
@@ -904,7 +883,7 @@ SMODS.Joker{
         end
         if context.end_of_round and context.cardarea == G.jokers then
             return {
-                message = localize('k_reset_ex')
+                message = 'Reset'
             }
         end
     end
@@ -1911,7 +1890,7 @@ SMODS.Consumable{
     end,
 
     can_use = function(self, card)
-        if G.GAME.lootPlays.current < 0 then
+        if G.GAME.lootPlays.current <= 0 then
             return false 
         elseif #G.consumeables.cards >= G.consumeables.config.card_limit then
             return false
@@ -1926,9 +1905,9 @@ SMODS.Consumable{
                 choice = 'Loot'
             else
                 local roll = 20 * pseudorandom('sack'..G.GAME.round_resets.ante)
-                if roll < 6 then choice = 'Loot'
-                elseif roll < 12 then choice = 'Tarot'
-                elseif roll < 18 then choice = 'Planet'
+                if roll < 8 then choice = 'Loot'
+                elseif roll < 13 then choice = 'Tarot'
+                elseif roll < 19 then choice = 'Planet'
                 elseif roll <= 20 then choice = 'Spectral'
                 end
             end

@@ -88,8 +88,7 @@ return {
                 name = 'Flamethrower',
                 text = {
                     'Create a {C:planet}Planet Card',
-                    'when score is set',
-                    '{C:attention}on fire',
+                    'if score is {C:attention}on fire',
                     '{C:inactive}(must have room)'
                 }
             },
@@ -134,13 +133,13 @@ return {
                     '{C:inactive}(rank changes every round)'
                 }
             },
-            j_joey_hazy = {
+            j_joey_hazy2 = {
                 name = 'Hazy',
                 text = {
-                    'This joker gains {C:mult}+#1# {}mult',
-                    'per round played without exceeding',
-                    ' {C:attention}#3#x {}the blind requirement',
-                    '{C:inactive}(currently {C:mult}+#2# {C:inactive}mult)'
+                    'Earn {C:money}$#2#{} at end of round',
+                    'if you scored less than',
+                    "{C:attention}last round{}'s score",
+                    '{C:inactive}[was #1#]'
                 }
             },
             j_joey_economy= {
